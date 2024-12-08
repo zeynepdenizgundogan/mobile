@@ -1,0 +1,194 @@
+ion-header {
+    background: #ffffff;
+    
+    ion-toolbar {
+      --background: #f4f5f8;
+      --border-width: 0;
+      
+      ion-title {
+        font-weight: 600;
+        visibility: visible;
+        color: #333333; // Koyu gri renk
+        text-align: center;
+        padding-inline-start: 10;
+        margin-left: 70px;
+        padding-inline-end: 56px; /* Compensate for the avatar width */
+      }
+      
+      ion-avatar {
+        width: 32px;
+        height: 32px;
+        margin-right: 16px;
+      }
+    }
+  }
+  
+  ion-content {
+    --padding-top: 0;
+    --background: #f4f5f8;
+    
+    .location {
+      margin-bottom: 20px;
+      
+      .location-label {
+        color: #4a4a4a;  /* Daha koyu bir gri tonu */
+        font-size: 14px;
+        margin: 0;
+        font-weight: normal;
+      }
+      
+      .location-value {
+        color: #000;
+        font-size: 18px;
+        margin: 4px 0 0 0;
+        font-weight: 600;
+      }
+    }
+    
+    .custom-searchbar {
+      --background: #ffffff;
+      --border-radius: 12px;
+      --box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      --placeholder-color: #666;
+      margin-bottom: 24px;
+    }
+    
+    .section-title {
+      font-size: 20px;
+      font-weight: 600;
+      margin: 0 0 16px 0;
+      color: #000;
+    }
+    
+    ion-card {
+      margin: 8px 0;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      background: #ffffff;
+      
+      .card-image-container {
+        position: relative;
+        
+        .card-image {
+          height: 140px;
+          width: 100%;
+          object-fit: cover;
+        }
+        
+        .favorite-button {
+          position: absolute;
+          top: 8px;
+          right: 8px;
+          --padding-start: 8px;
+          --padding-end: 8px;
+          margin: 0;
+          
+          ion-icon {
+            color: #ffffff;
+            font-size: 20px;
+          }
+        }
+      }
+      
+      ion-card-header {
+        padding: 12px 12px 8px;
+        
+        ion-card-title {
+          font-size: 14px;
+          font-weight: 600;
+          color: #000;
+        }
+      }
+      
+      ion-card-content {
+        padding: 0 12px 12px;
+        
+        .card-details {
+          display: flex;
+          align-items: center;
+          font-size: 12px;
+          color: #666;
+          margin-bottom: 8px;
+          
+          ion-icon {
+            margin-right: 4px;
+            font-size: 14px;
+          }
+        }
+        
+        .rating {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          
+          .rating-stars {
+            display: flex;
+            align-items: center;
+            
+            ion-icon {
+              color: #ffd700;
+              margin-right: 4px;
+            }
+            
+            span {
+              font-size: 12px;
+              color: #666;
+            }
+          }
+          
+          .small-avatar {
+            width: 24px;
+            height: 24px;
+          }
+        }
+      }
+    }
+    
+    .route-button {
+      margin: 24px auto;
+      width: 80%;
+      --border-radius: 12px; /* Daha az oval */
+      --background: #0088cc;
+      font-weight: 500;
+      height: 48px;
+      --color: #ffffff; /* Beyaz metin rengi */
+    }
+  }
+  
+  .bottom-bar {
+    --background: #ffffff;
+    --border-width: 0;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.05);
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: -10px;
+      left: 0;
+      right: 0;
+      height: 10px;
+      background: #ffffff;
+      filter: blur(5px);
+    }
+    
+    ion-buttons {
+      display: flex;
+      justify-content: space-around;
+      width: 100%;
+      padding: 0 16px;
+      
+      ion-button {
+        --color: #666;
+        --color-selected: #0088cc;
+        
+        ion-icon {
+          font-size: 24px;
+        }
+      }
+    }
+  }
+  
+  
