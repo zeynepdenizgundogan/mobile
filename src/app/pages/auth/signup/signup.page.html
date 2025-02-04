@@ -11,47 +11,50 @@
   </div>
 
   <div class="signup-container">
-    <ion-list class="ion-no-padding">
-      <ion-item lines="none">
-        <ion-label position="stacked">Name</ion-label>
-        <ion-input type="text" placeholder="Enter Your Name"></ion-input>
-      </ion-item>
-      <ion-item lines="none">
-        <ion-label position="stacked">Surname</ion-label>
-        <ion-input type="text" placeholder="Enter Your Surname"></ion-input>
-      </ion-item>
+    <form (ngSubmit)="onSignup()">  <!-- ✅ Form gönderildiğinde `onSignup()` çalışır -->
+      <ion-list class="ion-no-padding">
+        <ion-item lines="none">
+          <ion-label position="stacked">Name</ion-label>
+          <ion-input [(ngModel)]="name" name="name" type="text" placeholder="Enter Your Name" required></ion-input>
+        </ion-item>
 
-      <ion-item lines="none">
-        <ion-label position="stacked">E-mail</ion-label>
-        <ion-input type="email" placeholder="Enter your e-mail"></ion-input>
-      </ion-item>
+        <ion-item lines="none">
+          <ion-label position="stacked">Surname</ion-label>
+          <ion-input [(ngModel)]="surname" name="surname" type="text" placeholder="Enter Your Surname" required></ion-input>
+        </ion-item>
 
-      <ion-item lines="none" class="password-input-container">
-        <ion-label position="stacked">Password</ion-label>
-        <ion-input [type]="showPassword ? 'text' : 'password'" placeholder="Enter Your Password"></ion-input>
-        <ion-icon
-          [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"
-          slot="end"
-          (click)="togglePasswordVisibility()"
-          class="eye-icon"
-        ></ion-icon>
-      </ion-item>
+        <ion-item lines="none">
+          <ion-label position="stacked">E-mail</ion-label>
+          <ion-input [(ngModel)]="email" name="email" type="email" placeholder="Enter your e-mail" required></ion-input>
+        </ion-item>
 
-      <ion-item lines="none" class="password-input-container">
-        <ion-label position="stacked">Confirm Password</ion-label>
-        <ion-input [type]="showPassword ? 'text' : 'password'" placeholder="Enter Your Password Again"></ion-input>
-        <ion-icon
-          [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"
-          slot="end"
-          (click)="togglePasswordVisibility()"
-          class="eye-icon"
-        ></ion-icon>
-      </ion-item>
-    </ion-list>
+        <ion-item lines="none" class="password-input-container">
+          <ion-label position="stacked">Password</ion-label>
+          <ion-input [(ngModel)]="password" name="password" [type]="showPassword ? 'text' : 'password'" placeholder="Enter Your Password" required></ion-input>
+          <ion-icon
+            [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"
+            slot="end"
+            (click)="togglePasswordVisibility()"
+            class="eye-icon"
+          ></ion-icon>
+        </ion-item>
 
-    <ion-button expand="block" class="signup-button">
-      Sign Up Now
-    </ion-button>
+        <ion-item lines="none" class="password-input-container">
+          <ion-label position="stacked">Confirm Password</ion-label>
+          <ion-input [(ngModel)]="confirmPassword" name="confirmPassword" [type]="showPassword ? 'text' : 'password'" placeholder="Enter Your Password Again" required></ion-input>
+          <ion-icon
+            [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"
+            slot="end"
+            (click)="togglePasswordVisibility()"
+            class="eye-icon"
+          ></ion-icon>
+        </ion-item>
+      </ion-list>
+
+      <ion-button expand="block" class="signup-button" type="submit">
+        Sign Up Now
+      </ion-button>
+    </form>
 
     <div class="divider">
       <span>Or</span>
