@@ -14,12 +14,12 @@
     <ion-list class="ion-no-padding">
       <ion-item lines="none">
         <ion-label position="stacked">E-mail</ion-label>
-        <ion-input type="email" placeholder="Enter Your E-mail"></ion-input>
+        <ion-input type="email" [(ngModel)]="email" placeholder="Enter Your E-mail"></ion-input>
       </ion-item>
 
       <ion-item lines="none" class="password-input-container">
         <ion-label position="stacked">Password</ion-label>
-        <ion-input [type]="showPassword ? 'text' : 'password'" placeholder="Enter Your Password"></ion-input>
+        <ion-input [type]="showPassword ? 'text' : 'password'" [(ngModel)]="password" placeholder="Enter Your Password"></ion-input>
         <ion-icon
           [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"
           slot="end"
@@ -33,7 +33,7 @@
       <ion-button fill="clear" size="small" routerLink="/auth/forgot-password">Forgot your password?</ion-button>
     </div>
 
-    <ion-button expand="block" class="login-button">
+    <ion-button expand="block" class="login-button" (click)="onLogin()">
       Log In
     </ion-button>
 

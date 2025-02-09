@@ -2,6 +2,7 @@ import { Component } from "@angular/core";
 import { AlertController } from "@ionic/angular";
 import { HttpClient } from "@angular/common/http";
 import { firstValueFrom } from "rxjs";
+import { Router } from "@angular/router";
 
 @Component({
   selector: "app-signup",
@@ -11,14 +12,15 @@ import { firstValueFrom } from "rxjs";
 export class SignupPage {
   showPassword = false;
   name: string = "";
-  surname: string = "";  // ✅ Eklendi
+  surname: string = "";  
   email: string = "";
   password: string = "";
-  confirmPassword: string = "";  // ✅ Eklendi
+  confirmPassword: string = ""; 
 
   constructor(
     private alertController: AlertController,
-    private http: HttpClient
+    private http: HttpClient,
+    private router: Router
   ) {}
 
   togglePasswordVisibility(): void {
@@ -72,12 +74,16 @@ export class SignupPage {
         buttons: ["OK"],
       });
       await alert.present();
+
+      this.router.navigate(["auth/login"]);
     } catch (error: any) {
       console.error("❌ Signup API Hatası:", error);
-
+  
+      const errorMessage = error.error?.error || "Kayıt başarısız! Lütfen tekrar deneyin.";
+  
       const alert = await this.alertController.create({
         header: "Hata",
-        message: error?.error?.message || "Kayıt başarısız! Lütfen tekrar deneyin.",
+        message: errorMessage,
         buttons: ["OK"],
       });
       await alert.present();
