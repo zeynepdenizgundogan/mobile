@@ -1,8 +1,11 @@
 import { Component } from "@angular/core";
-import { AlertController } from "@ionic/angular";
+import { AlertController, NavController } from "@ionic/angular";
 import { HttpClient } from "@angular/common/http";
 import { firstValueFrom } from "rxjs";
 import { Router } from "@angular/router";
+import { initializeApp } from "firebase/app";
+import { getAuth, createUserWithEmailAndPassword, setPersistence, browserLocalPersistence } from "firebase/auth";
+import { environment } from "src/environments/environment.prod";
 
 @Component({
   selector: "app-signup",
@@ -17,76 +20,76 @@ export class SignupPage {
   password: string = "";
   confirmPassword: string = ""; 
 
+  oApp = initializeApp(environment.firebaseConfig);
+  oAuth = getAuth();
   constructor(
     private alertController: AlertController,
+    private navController: NavController,
     private http: HttpClient,
     private router: Router
-  ) {}
+  ) {
+    this.setAuthPersistence();
+  }
+
+  private async setAuthPersistence(): Promise<void> {
+    await setPersistence(this.oAuth, browserLocalPersistence);
+  }
 
   togglePasswordVisibility(): void {
     this.showPassword = !this.showPassword;
   }
 
   async onSignup() {
-    console.log("✅ Girilen Şifre:", this.password);
-  console.log("✅ Girilen Şifre (Tekrar):", this.confirmPassword);
-
-    if (!this.name || !this.surname || !this.email || !this.password || !this.confirmPassword) {
-      const alert = await this.alertController.create({
-        header: "Hata",
-        message: "Lütfen tüm alanları doldurun!",
-        buttons: ["OK"],
-      });
-      await alert.present();
-      return;
+    if (!this.email || !this.password) {
+        this.presentAlert("Please enter a valid email and password.");
+        return;
     }
 
-    if (this.password !== this.confirmPassword) {
-      const alert = await this.alertController.create({
-        header: "Hata",
-        message: "Şifreler uyuşmuyor!",
-        buttons: ["OK"],
-      });
-      await alert.present();
-      return;
-    }
+    createUserWithEmailAndPassword(this.oAuth, this.email, this.password)
+    .then((userCredential) => {
+        const user = userCredential.user;
+        if (user.uid !== undefined && user.uid !== '') {
+            this.presentAlert("Your account has been successfully created!");
+            this.navController.navigateRoot('auth/login');
+        } else {
+            this.presentAlert("Sign-up failed. Please try again.");
+        }
+    })
+    .catch((error) => {
+        console.log("Firebase Error Code:", error.code);
+        console.log("Firebase Error Message:", error.message);
 
-    const signupData = {
-      name: this.name,
-      surname: this.surname,
-      email: this.email,
-      password: this.password,
-      confirmPassword:this.confirmPassword
-    };
+        let errorMessage = "An unknown error occurred. Please try again."; // Default error message
 
-    console.log("🔹 API'ye Gönderilen Signup Data:", signupData);
+        switch (error.code) {
+            case "auth/email-already-in-use":
+                errorMessage = "This email is already associated with an account. Please log in instead.";
+                break;
+            case "auth/invalid-email":
+                errorMessage = "Invalid email address. Please check the format.";
+                break;
+            case "auth/weak-password":
+                errorMessage = "Weak password. Please choose a stronger password (at least 6 characters).";
+                break;
+            case "auth/operation-not-allowed":
+                errorMessage = "Sign-up is currently disabled. Please contact support.";
+                break;
+            default:
+                errorMessage = error.message; // Firebase's default message if not handled
+                break;
+        }
 
-    try {
-      const response = await firstValueFrom(
-        this.http.post("http://localhost:5000/users/signup", signupData)
-      );
+        this.presentAlert(errorMessage);
+    });
+}
 
-      console.log("✅ API Yanıtı:", response);
+  async presentAlert(msg: string) {
+    const alert = await this.alertController.create({
+      header: 'Alert',
+      message: msg,
+      buttons: ['OK'],
+    });
 
-      const alert = await this.alertController.create({
-        header: "Başarılı",
-        message: "Kayıt işlemi tamamlandı!",
-        buttons: ["OK"],
-      });
-      await alert.present();
-
-      this.router.navigate(["auth/login"]);
-    } catch (error: any) {
-      console.error("❌ Signup API Hatası:", error);
-  
-      const errorMessage = error.error?.error || "Kayıt başarısız! Lütfen tekrar deneyin.";
-  
-      const alert = await this.alertController.create({
-        header: "Hata",
-        message: errorMessage,
-        buttons: ["OK"],
-      });
-      await alert.present();
-    }
+    await alert.present();
   }
 }

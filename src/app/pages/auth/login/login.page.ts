@@ -1,15 +1,24 @@
-import { Component } from "@angular/core";
-import { AlertController } from "@ionic/angular";
+import { Component, OnInit } from "@angular/core";
+import { AlertController, NavController } from "@ionic/angular";
 import { HttpClient } from "@angular/common/http";
 import { firstValueFrom } from "rxjs";
 import { Router } from "@angular/router";
+import { initializeApp } from "firebase/app";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { environment } from "src/environments/environment.prod";
 
 @Component({
   selector: "app-login",
   templateUrl: "./login.page.html",
   styleUrls: ["./login.page.scss"],
 })
-export class LoginPage {
+export class LoginPage{
+  // Initialize Firebase
+  oApp = initializeApp(environment.firebaseConfig);
+
+  // Initialize Firebase Authentication and get a reference to the service
+  oAuth = getAuth(this.oApp);
+
   email: string = "";
   password: string = "";
   showPassword: boolean = false;
@@ -17,7 +26,8 @@ export class LoginPage {
   constructor(
     private alertController: AlertController,
     private http: HttpClient,
-    private router: Router
+    private router: Router,
+    private navController: NavController
   ) {}
 
   togglePasswordVisibility(): void {
@@ -25,52 +35,52 @@ export class LoginPage {
   }
 
   async onLogin() {
-    console.log("📩 Login butonuna basıldı.");
-    console.log("✅ Girilen Email:", this.email);
-    console.log("✅ Girilen Şifre:", this.password);
+    signInWithEmailAndPassword(this.oAuth, this.email, this.password)
+    .then((userCredential) => {
+        const user = userCredential.user;
+        if (user.uid !== undefined && user.uid !== '') {
+            this.navController.navigateRoot('content/home');
+        } else {
+            this.presentAlert("Login failed. Please check your credentials.");
+        }
+    })
+    .catch((error) => {
+        console.log(error.code);
+        console.log(error.message);
 
-    if (!this.email || !this.password) {
-      const alert = await this.alertController.create({
-        header: "Hata",
-        message: "Lütfen e-mail ve şifre girin!",
-        buttons: ["OK"],
-      });
-      await alert.present();
-      return;
-    }
+        let errorMessage = "An unknown error occurred. Please try again."; // Default error message
 
-    const loginData = {
-      email: this.email,
-      password: this.password,
-    };
+        switch (error.code) {
+            case "auth/invalid-email":
+                errorMessage = "Invalid email address. Please check the format.";
+                break;
+            case "auth/user-not-found":
+                errorMessage = "No account found with this email.";
+                break;
+            case "auth/wrong-password":
+                errorMessage = "Incorrect password. Please try again.";
+                break;
+            case "auth/user-disabled":
+                errorMessage = "This account has been disabled. Please contact support.";
+                break;
+            case "auth/too-many-requests":
+                errorMessage = "Too many failed attempts. Please wait and try again later.";
+                break;
+        }
 
-    try {
-      const response: any = await firstValueFrom(
-        this.http.post("http://localhost:5000/users/login", loginData)
-      );
+        this.presentAlert(errorMessage);
+    });
+}
 
-      console.log("✅ API Yanıtı:", response);
 
-      const alert = await this.alertController.create({
-        header: "Başarılı",
-        message: "Giriş başarılı!",
-        buttons: ["OK"],
-      });
-      await alert.present();
 
-      // Kullanıcıyı ana sayfaya yönlendir
-      this.router.navigate(["content/home"]);
-    } catch (error: any) {
-      console.error("❌ Login API Hatası:", error);
-  
-      const errorMessage = error.error?.error || "Giriş başarısız! Lütfen tekrar deneyin.";
-  
-      const alert = await this.alertController.create({
-        header: "Hata",
-        message: errorMessage,
-        buttons: ["OK"],
-      });
-      await alert.present();
-    }
+  async presentAlert(msg: string) {
+    const alert = await this.alertController.create({
+      header: 'Alert',
+      message: msg,
+      buttons: ['OK'],
+    });
+
+    await alert.present();
   }
 }
