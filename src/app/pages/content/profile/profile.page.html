@@ -1,0 +1,82 @@
+
+<ion-content>
+  <ion-header class="ion-no-border"></ion-header>
+  <div class="profile-container">
+    <!-- Profile Header -->
+    <div class="profile-header">
+      <div class="avatar">
+        <img [src]="user?.photoURL || 'assets/default-avatar.png'" alt="Profile Picture">
+        <button class="edit-btn" (click)="editProfilePicture()">
+          <ion-icon name="camera"></ion-icon>
+        </button>
+      </div>
+      <h2>{{ user?.displayName || 'Guest' }}</h2>
+      <p class="email">{{ user?.email || 'No email available' }}</p>
+    </div>
+
+    <!-- Location Card -->
+    <div class="location-card">
+      <div class="location-header">
+        <ion-icon name="location-outline"></ion-icon>
+        <span>Your Location</span>
+      </div>
+      <div class="location-value">
+        <!-- Kullanıcının mevcut konumu burada gösterilecek -->
+        <span>{{ location || 'Location not set' }}</span>
+        <ion-icon name="create-outline" (click)="location = ''"></ion-icon> <!-- Edit simgesi -->
+      </div>
+    </div>
+
+    <!-- Menu List -->
+    <ion-list lines="none">
+      <ion-item>
+        <ion-icon slot="start" name="time-outline"></ion-icon>
+        <ion-label>Previous Trips</ion-label>
+        <ion-icon slot="end" name="chevron-forward"></ion-icon>
+      </ion-item>
+
+      <ion-item>
+        <ion-icon slot="start" name="bookmark-outline"></ion-icon>
+        <ion-label>Bookmarked</ion-label>
+        <ion-icon slot="end" name="chevron-forward"></ion-icon>
+      </ion-item>
+
+      <ion-item>
+        <ion-icon slot="start" name="settings-outline"></ion-icon>
+        <ion-label>Settings</ion-label>
+        <ion-icon slot="end" name="chevron-forward"></ion-icon>
+      </ion-item>
+
+      <ion-item>
+        <ion-icon slot="start" name="person-circle-outline"></ion-icon>
+        <ion-label>Personal Information</ion-label>
+        <ion-icon slot="end" name="chevron-forward"></ion-icon>
+      </ion-item>
+
+      <ion-item (click)="logOut()">
+        <ion-icon slot="start" name="log-in-outline"></ion-icon>
+        <ion-label>Log Out</ion-label>
+      </ion-item>
+    </ion-list>
+  </div>
+
+  <ion-footer>
+    <ion-toolbar class="bottom-bar">
+      <ion-buttons>
+        <ion-button routerLink="../home">
+          <ion-icon slot="icon-only" name="home"></ion-icon>
+        </ion-button>
+        <ion-button>
+          <ion-icon slot="icon-only" name="add-outline"></ion-icon>
+        </ion-button>
+        <ion-button>
+          <ion-icon slot="icon-only" name="reader-outline"></ion-icon>
+        </ion-button>
+        <ion-button routerLink="../profile">
+          <ion-icon slot="icon-only" name="person-outline"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+    </ion-toolbar>
+  </ion-footer>
+
+</ion-content>

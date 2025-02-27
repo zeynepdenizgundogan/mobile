@@ -1,0 +1,189 @@
+// Global background color
+ion-content {
+    --background: #ffffff;
+  }
+  
+  ion-header {
+    ion-toolbar {
+      --background: #ffffff;
+      
+      ion-title {
+        font-size: 16px;
+        font-weight: 600;
+      }
+    }
+  }
+  
+  .profile-container {
+    padding: 20px;
+    background: #ffffff;
+  }
+  
+  .profile-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 30px;
+    background: #ffffff;
+  
+    .avatar {
+      position: relative;
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      overflow: hidden;
+      background: #FFE5E5;
+      margin-bottom: 16px;
+    }
+    
+    .avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .edit-btn {
+      position: absolute;
+      bottom: 5px;
+      right: 5px;
+      background-color: rgba(0, 0, 0, 0.5);
+      border-radius: 50%;
+      padding: 5px;
+      color: white;
+      font-size: 18px;
+    }
+    
+    .edit-btn ion-icon {
+      font-size: 20px;
+    }
+    
+    h2 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 600;
+      color: #000;
+    }
+  
+    .email {
+      margin: 5px 0 0;
+      font-size: 14px;
+      color: #666;
+    }
+  }
+  
+  
+  ion-list {
+    background: transparent;
+    margin-top: 30px; // Üst kısımdan boşluk
+    padding: 0;
+  
+    ion-item {
+      --padding-start: 0;
+      --inner-padding-end: 0;
+      --background: #ffffff;
+      margin-bottom: 8px;
+  
+      ion-icon[slot="start"] {
+        margin-right: 15px;
+        color: #666;
+      }
+  
+      ion-icon[slot="end"] {
+        color: #CCC;
+      }
+  
+      ion-label {
+        font-size: 16px;
+        font-weight: 500;
+        color: #333;
+      }
+    }
+  }
+
+  .location-card {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 16px;
+    margin: 20px 0 30px 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    
+    .location-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+      
+      ion-icon {
+        color: #0088cc;
+        font-size: 20px;
+        margin-right: 8px;
+      }
+      
+      span {
+        color: #666;
+        font-size: 13px;
+        font-weight: 500;
+      }
+    }
+    
+    .location-value {
+      color: #333;
+      font-size: 16px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      
+      ion-icon {
+        color: #666;
+        font-size: 18px;
+        margin-left: auto;
+      }
+    }
+  }
+  
+  // Override Ionic default background colors
+  :host {
+    --ion-background-color: #ffffff;
+  }
+  
+  ion-list {
+    ion-item {
+      --ion-item-background: #ffffff;
+    }
+  }
+
+  .bottom-bar {
+    --background: #ffffff;
+    --border-width: 0;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.05);
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: -10px;
+      left: 0;
+      right: 0;
+      height: 10px;
+      background: #ffffff;
+      filter: blur(5px);
+    }
+    
+    ion-buttons {
+      display: flex;
+      justify-content: space-around;
+      width: 100%;
+      padding: 0 16px;
+      
+      ion-button {
+        --color: #666;
+        --color-selected: #0088cc;
+        
+        ion-icon {
+          font-size: 24px;
+        }
+      }
+    }
+  }
+  

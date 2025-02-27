@@ -1,0 +1,26 @@
+ion-tab-bar {
+    overflow: visible;
+    contain: layout;
+    --border: none;
+    --color: #97A2B0;
+    --background: white;
+    padding: 10px 0 25px 0;
+
+    ion-tab-button {
+        --ripple-color: transparent;
+        ion-icon {
+            font-size: 26px;
+        }
+        &.tab-selected {
+            &::after {
+                content: '';
+                position: absolute;
+                bottom: 0; /* Kutunun altta görünmesi için */
+                left: 0;
+                right: 0;
+                height: 4px; /* Kutunun yüksekliği */
+                z-index: -1; /* Kutunun tab butonlarının arkasında görünmesi için */
+            }
+        }
+    }
+}
