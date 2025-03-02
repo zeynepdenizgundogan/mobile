@@ -4,6 +4,7 @@ import { getAuth, updateProfile } from "firebase/auth";
 import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
 import { initializeApp } from "firebase/app";
 import { environment } from "src/environments/environment.prod";
+import { LocationService } from '../../../services/location.service';
 
 @Component({
   selector: 'app-home',
@@ -37,25 +38,22 @@ export class HomePage {
   oAuth = getAuth();
   db = getFirestore(); // Firestore'a erişim için
 
-  constructor(private alertController: AlertController, private navController: NavController) {
-    this.getUserProfile();
-  }
+  constructor(
+    private alertController: AlertController,
+    private navController: NavController,
+    private locationService: LocationService
+  ) {}
 
-  // Kullanıcı profilini almak
-  private async getUserProfile() {
-    const user = this.oAuth.currentUser;
-    if (user) {
-      this.user = user;
-      // Firestore'dan kullanıcının konum bilgisini alıyoruz
-      const userRef = doc(this.db, "users", user.uid);
-      const docSnap = await getDoc(userRef);
+  ngOnInit() {
+    this.locationService.locationCity$.subscribe(city => {
+      this.locationCity = city;
+    });
 
-      if (docSnap.exists()) {
-        this.locationCity = docSnap.data()['locationCity'] || ""; // Konum bilgisini alıyoruz
-        this.locationCountry = docSnap.data()['locationCountry'] || ""; // Konum bilgisini alıyoruz
-      } else {
-        console.log("No such document!");
-      }
-    }
+    this.locationService.locationCountry$.subscribe(country => {
+      this.locationCountry = country;
+    });
+
+    const auth = getAuth();
+    this.user = auth.currentUser;
   }
 }
