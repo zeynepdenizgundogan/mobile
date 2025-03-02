@@ -1,13 +1,7 @@
 import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 
-
 const routes: Routes = [
-  {
-    path: '',
-    redirectTo: 'auth/login',
-    pathMatch: 'full'
-  },
   {
     path: 'auth',
     loadChildren: () => import('./pages/auth/auth.module').then(m => m.AuthPageModule)
@@ -16,7 +10,11 @@ const routes: Routes = [
     path: 'content',
     loadChildren: () => import('./pages/content/content.module').then(m => m.ContentPageModule)
   },
-
+  {
+    path: '',
+    redirectTo: 'content/home',
+    pathMatch: 'full'
+  }
 ];
 
 @NgModule({

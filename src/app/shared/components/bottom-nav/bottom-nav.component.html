@@ -1,0 +1,24 @@
+<div class="bottom-nav">
+  <button class="nav-item" [class.active]="isActive('/home')" (click)="navigate('/home')">
+    <ion-icon name="home"></ion-icon>
+    <span>Home</span>
+  </button>
+  <button class="nav-item" [class.active]="isActive('/calendar')" (click)="navigate('/calendar')">
+    <ion-icon name="calendar-outline"></ion-icon>
+    <span>Calendar</span>
+  </button>
+  <button class="nav-item create-route" [class.active]="isActive('/create-route')" (click)="navigate('/create-route')">
+    <div class="create-button">
+      <ion-icon name="add"></ion-icon>
+    </div>
+    <span>Create Route</span>
+  </button>
+  <button class="nav-item" [class.active]="isActive('/trips')" (click)="navigate('/trips')">
+    <ion-icon name="map-outline"></ion-icon>
+    <span>Your Trips</span>
+  </button>
+  <button class="nav-item" [class.active]="isActive('/profile')" (click)="navigate('/profile')">
+    <ion-icon name="person-outline"></ion-icon>
+    <span>Profile</span>
+  </button>
+</div>

@@ -1,23 +1,49 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-
 import { ContentPage } from './content.page';
 
 const routes: Routes = [
   {
     path: '',
-    component: ContentPage
+    component: ContentPage,
+    children: [
+      {
+        path: 'home',
+        loadChildren: () => import('./home/home.module').then(m => m.HomePageModule)
+      },
+      {
+        path: 'calendar',
+        loadChildren: () => import('./calendar/calendar.module').then(m => m.CalendarPageModule)
+      },
+      {
+        path: 'create-route',
+        loadChildren: () => import('./create-route/create-route.module').then(m => m.CreateRoutePageModule)
+      },
+      {
+        path: 'trips',
+        loadChildren: () => import('./trips/trips.module').then(m => m.TripsPageModule)
+      },
+      {
+        path: 'profile',
+        loadChildren: () => import('./profile/profile.module').then(m => m.ProfilePageModule)
+      },
+      {
+        path: '',
+        redirectTo: 'home',
+        pathMatch: 'full'
+      }
+    ]
   },  {
-    path: 'home',
-    loadChildren: () => import('./home/home.module').then( m => m.HomePageModule)
+    path: 'calendar',
+    loadChildren: () => import('./calendar/calendar.module').then( m => m.CalendarPageModule)
   },
   {
-    path: 'home',
-    loadChildren: () => import('./home/home.module').then( m => m.HomePageModule)
+    path: 'trips',
+    loadChildren: () => import('./trips/trips.module').then( m => m.TripsPageModule)
   },
   {
-    path: 'profile',
-    loadChildren: () => import('./profile/profile.module').then( m => m.ProfilePageModule)
+    path: 'create-route',
+    loadChildren: () => import('./create-route/create-route.module').then( m => m.CreateRoutePageModule)
   }
 
 ];

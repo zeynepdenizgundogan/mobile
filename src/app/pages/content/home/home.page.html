@@ -1,80 +1,89 @@
-<ion-header class="ion-no-border">
-  <ion-toolbar>
-    <ion-title class="ion-text-center">Home</ion-title>
-    <ion-buttons slot="end">
-      <ion-avatar>
-        <img src="https://ionicframework.com/docs/img/demos/avatar.svg" />
-      </ion-avatar>
-    </ion-buttons>
-  </ion-toolbar>
-</ion-header>
+<ion-content>
+  <!-- Header -->
+  <div class="header">
+    <div class="location-badge">
+      <ion-icon name="location-outline"></ion-icon>
+      <span>{{ locationCity + ', ' + locationCountry || 'Location not set' }}</span>
+    </div>
+    <ion-avatar>
+      <img [src]="user?.photoURL || 'assets/default-avatar.png'" alt="Profile Picture">
+    </ion-avatar>
+  </div>
 
-<ion-content class="ion-padding">
-  <div class="location">
-    <div>
-      <h3 class="location-label">Your Location</h3>
-      <h2 class="location-value">Tangerang, Kab.</h2>
+  <!-- Main Content -->
+  <div class="main-container">
+    <!-- Welcome Section -->
+    <div class="welcome-section">
+      <h2>Hi, {{ user?.displayName.split(' ')[0] || 'Guest' }}</h2>
+      <h1>Where do<br>you want to go?</h1>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="search-wrapper">
+      <div class="search-container">
+        <ion-icon name="search-outline" class="search-icon"></ion-icon>
+        <input type="text" placeholder="Search" class="search-input">
+      </div>
+    </div>
+
+  <!-- Explore Section -->
+  <div class="explore-section">
+    <h3>Explore Itineraries</h3>
+    <div class="category-scroll">
+      <ion-segment value="all" scrollable mode="md">
+        <ion-segment-button value="all" class="active">
+          <ion-label>All</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="popular">
+          <ion-label>Popular</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="recommended">
+          <ion-label>Recommended</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="most-viewed">
+          <ion-label>Most Viewed</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="most-visited">
+          <ion-label>Most Visited</ion-label>
+        </ion-segment-button>
+      </ion-segment>
     </div>
   </div>
 
-  <ion-searchbar placeholder="Search" class="custom-searchbar"></ion-searchbar>
-
-  <h2 class="section-title">Popular Itineraries</h2>
-
-  <ion-grid>
-    <ion-row>
-      <ion-col size="6" *ngFor="let item of popularItems">
-        <ion-card>
-          <div class="card-image-container">
-            <img [src]="item.image" class="card-image" />
-            <ion-button fill="clear" class="favorite-button">
-              <ion-icon slot="icon-only" name="heart-outline"></ion-icon>
-            </ion-button>
-          </div>
-          <ion-card-header>
-            <ion-card-title>{{ item.name }}</ion-card-title>
-          </ion-card-header>
-          <ion-card-content>
-            <div class="card-details">
-              <ion-icon name="location-outline"></ion-icon>
-              <span>{{ item.location }}</span>
+    <!-- Itineraries Grid -->
+    <ion-grid>
+      <ion-row>
+        <ion-col size="6" *ngFor="let item of popularItems">
+          <ion-card class="itinerary-card">
+            <div class="card-image-container">
+              <img [src]="item.image" class="card-image" />
+              <ion-button fill="clear" class="favorite-button">
+                <ion-icon slot="icon-only" name="heart-outline"></ion-icon>
+              </ion-button>
             </div>
-            <div class="rating">
-              <div class="rating-stars">
-                <ion-icon name="star" color="warning"></ion-icon>
-                <span>{{ item.rating }}</span>
+            <ion-card-content>
+              <h3>{{ item.name }}</h3>
+              <div class="card-footer">
+                <div class="location-info">
+                  <ion-icon name="location-outline"></ion-icon>
+                  <span>{{ item.location }}</span>
+                </div>
+                <div class="rating-user">
+                  <div class="rating">
+                    <ion-icon name="star" color="warning"></ion-icon>
+                    <span>{{ item.rating }}</span>
+                  </div>
+                  <ion-avatar class="user-avatar">
+                    <img [src]="item.userAvatar" />
+                  </ion-avatar>
+                </div>
               </div>
-              <ion-avatar class="small-avatar">
-                <img [src]="item.userAvatar" />
-              </ion-avatar>
-            </div>
-          </ion-card-content>
-        </ion-card>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
 
-  <ion-button expand="block" class="route-button">
-    Create New Route Plan
-  </ion-button>
 </ion-content>
-
-<ion-footer>
-  <ion-toolbar class="bottom-bar">
-    <ion-buttons>
-      <ion-button>
-        <ion-icon slot="icon-only" name="home"></ion-icon>
-      </ion-button>
-      <ion-button>
-        <ion-icon slot="icon-only" name="add-outline"></ion-icon>
-      </ion-button>
-      <ion-button>
-        <ion-icon slot="icon-only" name="reader-outline"></ion-icon>
-      </ion-button>
-      <ion-button routerLink="../profile">
-        <ion-icon slot="icon-only" name="person-outline"></ion-icon>
-      </ion-button>
-    </ion-buttons>
-  </ion-toolbar>
-</ion-footer>
 

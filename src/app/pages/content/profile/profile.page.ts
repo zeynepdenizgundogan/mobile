@@ -5,6 +5,7 @@ import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
 import { initializeApp } from "firebase/app";
 import { environment } from "src/environments/environment.prod";
 import { signOut } from "firebase/auth"; // Import signOut from Firebase
+import { Router } from '@angular/router';
 
 @Component({
   selector: "app-profile",
@@ -13,13 +14,14 @@ import { signOut } from "firebase/auth"; // Import signOut from Firebase
 })
 export class ProfilePage {
   user: any = null;
-  location: string = "";  // Konum bilgisi için bir değişken
+  locationCity: string = "";  // Konum bilgisi için bir değişken
+  locationCountry: string = "";
 
   oApp = initializeApp(environment.firebaseConfig);
   oAuth = getAuth();
   db = getFirestore(); // Firestore'a erişim için
 
-  constructor(private alertController: AlertController, private navController: NavController) {
+  constructor(private alertController: AlertController, private navController: NavController, private router: Router) {
     this.getUserProfile();
   }
 
@@ -33,7 +35,8 @@ export class ProfilePage {
       const docSnap = await getDoc(userRef);
 
       if (docSnap.exists()) {
-        this.location = docSnap.data()['location'] || ""; // Konum bilgisini alıyoruz
+        this.locationCity = docSnap.data()['locationCity'] || ""; // Konum bilgisini alıyoruz
+        this.locationCountry = docSnap.data()['locationCountry'] || "";
       } else {
         console.log("No such document!");
       }
@@ -42,7 +45,7 @@ export class ProfilePage {
 
   // Konum bilgisini Firestore'a kaydetme
   async updateLocation() {
-    if (this.location.trim() === "") {
+    if (this.locationCity.trim() === "") {
       this.presentAlert("Please enter a valid location.");
       return;
     }
@@ -52,7 +55,7 @@ export class ProfilePage {
       try {
         // Konum bilgisini Firestore'a kaydediyoruz
         const userRef = doc(this.db, "users", user.uid);
-        await setDoc(userRef, { location: this.location }, { merge: true });
+        await setDoc(userRef, { location: this.locationCity }, { merge: true });
         this.presentAlert("Location updated successfully!");
       } catch (error) {
         this.presentAlert("Failed to update location.");
@@ -78,8 +81,12 @@ export class ProfilePage {
   // Log out method
   async logOut() {
     try {
-      await signOut(this.oAuth); // Firebase authentication sign out
-      this.navController.navigateRoot('/auth/login'); // Doğru login sayfası yolunu kullanın
+      await signOut(this.oAuth);
+      // Önce auth state'i temizleyelim
+      this.user = null;
+      // Hem router hem navController kullanalım
+      await this.router.navigate(['/auth/login']);
+      this.navController.setDirection('root');
     } catch (error) {
       console.error("Error logging out: ", error);
       this.presentAlert("Failed to log out.");
