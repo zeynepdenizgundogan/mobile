@@ -56,12 +56,13 @@ export class SignupPage {
           // Kullanıcı adı (username) bilgisini güncelle
           return updateProfile(user, {
             displayName: `${this.name} ${this.surname}`, // Ad ve soyadı birleştirerek kaydediyoruz
-            photoURL: "https://www.w3schools.com/howto/img_avatar.png", // Varsayılan profil resmi
+            photoURL: 'https://ionicframework.com/docs/img/demos/avatar.svg', // Varsayılan profil resmi
           }).then(() => {
             // Firestore'a location bilgisini ekle
             const userRef = doc(this.db, "users", user.uid); // Kullanıcıyı Firestore'da tanımlıyoruz
             return setDoc(userRef, {
-              location: "Istanbul", // Kullanıcıya ait lokasyon bilgisini ekliyoruz
+              locationCity: "Istanbul", // Kullanıcıya ait lokasyon bilgisini ekliyoruz
+              locationCountry: "Türkiye",
             }, { merge: true }); // merge: true ile mevcut verilere zarar vermiyoruz
           }).then(() => {
             this.presentAlert("Your account has been successfully created!");

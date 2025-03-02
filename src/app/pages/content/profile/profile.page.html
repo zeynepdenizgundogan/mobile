@@ -1,4 +1,3 @@
-
 <ion-content>
   <ion-header class="ion-no-border"></ion-header>
   <div class="profile-container">
@@ -22,8 +21,8 @@
       </div>
       <div class="location-value">
         <!-- Kullanıcının mevcut konumu burada gösterilecek -->
-        <span>{{ location || 'Location not set' }}</span>
-        <ion-icon name="create-outline" (click)="location = ''"></ion-icon> <!-- Edit simgesi -->
+        <span>{{ locationCity + ', ' + locationCountry || 'Location not set' }}</span>
+        <ion-icon name="create-outline" (click)="locationCity = ''"></ion-icon> <!-- Edit simgesi -->
       </div>
     </div>
 
@@ -60,23 +59,6 @@
     </ion-list>
   </div>
 
-  <ion-footer>
-    <ion-toolbar class="bottom-bar">
-      <ion-buttons>
-        <ion-button routerLink="../home">
-          <ion-icon slot="icon-only" name="home"></ion-icon>
-        </ion-button>
-        <ion-button>
-          <ion-icon slot="icon-only" name="add-outline"></ion-icon>
-        </ion-button>
-        <ion-button>
-          <ion-icon slot="icon-only" name="reader-outline"></ion-icon>
-        </ion-button>
-        <ion-button routerLink="../profile">
-          <ion-icon slot="icon-only" name="person-outline"></ion-icon>
-        </ion-button>
-      </ion-buttons>
-    </ion-toolbar>
-  </ion-footer>
-
 </ion-content>
+
+

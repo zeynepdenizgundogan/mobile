@@ -1,24 +1,5 @@
-<ion-tabs>
-  <ion-tab-bar slot="bottom">
+<ion-content>
+  <ion-router-outlet></ion-router-outlet>
+</ion-content>
 
-    <ion-tab-button tab="home">
-      <ion-icon aria-hidden="true" src="assets/icon/tab-bar/home.svg"></ion-icon>
-    </ion-tab-button>
-
-    <ion-tab-button tab="inventory">
-      <ion-icon aria-hidden="true" src="assets/icon/tab-bar/chef.svg"></ion-icon>
-    </ion-tab-button>
-
-    <ion-tab-button tab="game">
-      <ion-icon name="game-controller-outline"></ion-icon>
-    </ion-tab-button>
-
-    <ion-tab-button tab="shop-list">
-      <ion-icon name="cart-outline"></ion-icon>
-    </ion-tab-button>
-     
-    <ion-tab-button tab="profile">
-      <ion-icon aria-hidden="true" src="assets/icon/tab-bar/profile.svg"></ion-icon>
-    </ion-tab-button>
-  </ion-tab-bar>
-</ion-tabs>
+<app-bottom-nav></app-bottom-nav>

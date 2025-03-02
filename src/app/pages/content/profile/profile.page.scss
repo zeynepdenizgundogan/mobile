@@ -1,7 +1,7 @@
 // Global background color
 ion-content {
     --background: #ffffff;
-  }
+  
   
   ion-header {
     ion-toolbar {
@@ -151,39 +151,28 @@ ion-content {
     }
   }
 
-  .bottom-bar {
-    --background: #ffffff;
-    --border-width: 0;
-    border-top-left-radius: 16px;
-    border-top-right-radius: 16px;
-    overflow: hidden;
-    box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.05);
-    
-    &::before {
-      content: '';
-      position: absolute;
-      top: -10px;
-      left: 0;
-      right: 0;
-      height: 10px;
-      background: #ffffff;
-      filter: blur(5px);
-    }
-    
-    ion-buttons {
-      display: flex;
-      justify-content: space-around;
-      width: 100%;
-      padding: 0 16px;
-      
-      ion-button {
-        --color: #666;
-        --color-selected: #0088cc;
-        
-        ion-icon {
-          font-size: 24px;
-        }
-      }
-    }
+
+// Additional Utility Classes
+.ion-no-padding {
+  padding: 0;
+}
+
+.ion-no-margin {
+  margin: 0;
+}
+
+// Fix for iOS safe area
+.ios {
+  .bottom-nav {
+    padding-bottom: env(safe-area-inset-bottom);
+    height: calc(64px + env(safe-area-inset-bottom));
   }
-  
+}
+
+// Fix for Android status bar
+.md {
+  .header {
+    padding-top: calc(16px + var(--ion-safe-area-top, 0px));
+  }
+}
+}

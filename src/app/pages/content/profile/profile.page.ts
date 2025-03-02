@@ -1,65 +1,64 @@
-import { Component } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { AlertController, NavController } from "@ionic/angular";
-import { getAuth, updateProfile } from "firebase/auth";
-import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
-import { initializeApp } from "firebase/app";
-import { environment } from "src/environments/environment.prod";
-import { signOut } from "firebase/auth"; // Import signOut from Firebase
+import { getAuth } from "firebase/auth";
+import { Router } from '@angular/router';
+import { LocationService } from '../../../services/location.service';
+import { signOut } from "firebase/auth";
 
 @Component({
   selector: "app-profile",
   templateUrl: "./profile.page.html",
   styleUrls: ["./profile.page.scss"],
 })
-export class ProfilePage {
+export class ProfilePage implements OnInit {
   user: any = null;
-  location: string = "";  // Konum bilgisi için bir değişken
+  locationCity: string = "";
+  locationCountry: string = "";
 
-  oApp = initializeApp(environment.firebaseConfig);
-  oAuth = getAuth();
-  db = getFirestore(); // Firestore'a erişim için
+  constructor(
+    private alertController: AlertController,
+    private navController: NavController,
+    private router: Router,
+    private locationService: LocationService
+  ) {}
 
-  constructor(private alertController: AlertController, private navController: NavController) {
+  ngOnInit() {
     this.getUserProfile();
+    this.locationService.locationCity$.subscribe(city => {
+      this.locationCity = city;
+    });
+
+    this.locationService.locationCountry$.subscribe(country => {
+      this.locationCountry = country;
+    });
   }
 
   // Kullanıcı profilini almak
   private async getUserProfile() {
-    const user = this.oAuth.currentUser;
+    const auth = getAuth();
+    const user = auth.currentUser;
     if (user) {
       this.user = user;
-      // Firestore'dan kullanıcının konum bilgisini alıyoruz
-      const userRef = doc(this.db, "users", user.uid);
-      const docSnap = await getDoc(userRef);
-
-      if (docSnap.exists()) {
-        this.location = docSnap.data()['location'] || ""; // Konum bilgisini alıyoruz
-      } else {
-        console.log("No such document!");
-      }
+      await this.locationService.getUserLocation();
     }
   }
 
-  // Konum bilgisini Firestore'a kaydetme
+  // Konum bilgisini güncelleme
   async updateLocation() {
-    if (this.location.trim() === "") {
+    if (this.locationCity.trim() === "") {
       this.presentAlert("Please enter a valid location.");
       return;
     }
 
-    const user = this.oAuth.currentUser;
-    if (user) {
-      try {
-        // Konum bilgisini Firestore'a kaydediyoruz
-        const userRef = doc(this.db, "users", user.uid);
-        await setDoc(userRef, { location: this.location }, { merge: true });
-        this.presentAlert("Location updated successfully!");
-      } catch (error) {
-        this.presentAlert("Failed to update location.");
-      }
+    try {
+      await this.locationService.updateLocation(this.locationCity, this.locationCountry);
+      this.presentAlert("Location updated successfully!");
+    } catch (error) {
+      this.presentAlert("Failed to update location.");
     }
   }
 
+  // Alert gösterme
   async presentAlert(msg: string) {
     const alert = await this.alertController.create({
       header: 'Alert',
@@ -69,20 +68,37 @@ export class ProfilePage {
 
     await alert.present();
   }
-  // Edit profile picture method
+
+  // Profil fotoğrafını düzenleme
   editProfilePicture() {
-    // Logic to edit profile picture (e.g., opening camera or file selector)
+    // TODO: Profil fotoğrafı düzenleme mantığı eklenecek
     console.log("Edit profile picture clicked");
   }
 
-  // Log out method
+  // Çıkış yapma
   async logOut() {
     try {
-      await signOut(this.oAuth); // Firebase authentication sign out
-      this.navController.navigateRoot('/auth/login'); // Doğru login sayfası yolunu kullanın
+      const auth = getAuth();
+      await signOut(auth);
+      // Auth state'i temizle
+      this.user = null;
+      // Login sayfasına yönlendir
+      await this.router.navigate(['/auth/login']);
+      this.navController.setDirection('root');
     } catch (error) {
       console.error("Error logging out: ", error);
       this.presentAlert("Failed to log out.");
     }
+  }
+
+  // Sayfa yeniden görünür olduğunda profili güncelle
+  ionViewWillEnter() {
+    this.getUserProfile();
+  }
+
+  // Component destroy olduğunda subscription'ları temizle
+  ngOnDestroy() {
+    // RxJS subscription'lar otomatik olarak temizlenecek
+    // çünkü async pipe ve service'in providedIn: 'root' özelliğini kullanıyoruz
   }
 }

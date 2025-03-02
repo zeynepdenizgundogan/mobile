@@ -7,13 +7,14 @@ import { IonicModule } from '@ionic/angular';
 import { ContentPageRoutingModule } from './content-routing.module';
 
 import { ContentPage } from './content.page';
-
+import { SharedModule } from '../../shared/shared.module';
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    ContentPageRoutingModule
+    ContentPageRoutingModule,
+    SharedModule
   ],
   declarations: [ContentPage]
 })
