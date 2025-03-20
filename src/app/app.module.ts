@@ -1,24 +1,27 @@
-import { NgModule } from '@angular/core';
+import { NgModule, LOCALE_ID, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { RouteReuseStrategy } from '@angular/router';
-import { HttpClientModule } from '@angular/common/http'; // 📌 HttpClientModule import edilmesi gerekiyor
+
 import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
-import { FormsModule } from '@angular/forms';
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
+
 
 @NgModule({
   declarations: [AppComponent],
   imports: [
-    BrowserModule,
-    IonicModule.forRoot(),
-    AppRoutingModule,
-    FormsModule,
-    HttpClientModule, // 📌 Burada ekledik
+    BrowserModule, 
+    IonicModule.forRoot(), 
+    AppRoutingModule, 
+    HttpClientModule
   ],
   providers: [
-    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
+    // { provide: LOCALE_ID, useValue: 'tr-TR' },
+    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
+
   ],
   bootstrap: [AppComponent],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class AppModule {}

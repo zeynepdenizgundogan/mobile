@@ -33,19 +33,7 @@ const routes: Routes = [
         pathMatch: 'full'
       }
     ]
-  },  {
-    path: 'calendar',
-    loadChildren: () => import('./calendar/calendar.module').then( m => m.CalendarPageModule)
-  },
-  {
-    path: 'trips',
-    loadChildren: () => import('./trips/trips.module').then( m => m.TripsPageModule)
-  },
-  {
-    path: 'create-route',
-    loadChildren: () => import('./create-route/create-route.module').then( m => m.CreateRoutePageModule)
   }
-
 ];
 
 @NgModule({
