@@ -1,13 +1,146 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>create-route</ion-title>
-  </ion-toolbar>
-</ion-header>
+<!-- src/app/pages/create-route/create-route.page.html -->
+<ion-content [scrollY]="true" class="ion-padding">
+  <!-- Header -->
+  <div class="custom-header">
+    <ion-button fill="clear" class="back-button" (click)="previousStep()">
+      <ion-icon name="arrow-back-outline"></ion-icon>
+    </ion-button>
+    <div class="title-container">
+      <h1>My Route Plan</h1>
+    </div>
+    <div class="header-spacer"></div>
+  </div>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">create-route</ion-title>
-    </ion-toolbar>
-  </ion-header>
+  <!-- Step 1: Date Selection -->
+  <div *ngIf="currentStep === 1" class="step-container">
+    <h2 class="text-center">Choose Your Dates</h2>
+    
+    <div class="calendar-container">
+      <ion-card>
+        <ion-card-content class="calendar-card-content">
+          <!-- Calendar Header -->
+          <div class="calendar-header">
+            <div class="month-title">
+              {{ currentMonth | date: 'MMMM yyyy' }} &gt;
+            </div>
+            <div class="navigation-buttons">
+              <ion-button fill="clear" (click)="prevMonth()">
+                <ion-icon name="chevron-back-outline"></ion-icon>
+              </ion-button>
+              <ion-button fill="clear" (click)="nextMonth()">
+                <ion-icon name="chevron-forward-outline"></ion-icon>
+              </ion-button>
+            </div>
+          </div>
+          
+          <!-- Calendar Grid -->
+          <div class="calendar-grid">
+            <!-- Weekday Headers -->
+            <div class="weekday-header" *ngFor="let day of weekdays">{{ day }}</div>
+            
+            <!-- Calendar Days -->
+            <div 
+              *ngFor="let date of calendarDays" 
+              class="calendar-day"
+              [ngClass]="{ 'empty': !date }"
+            >
+              <div 
+                *ngIf="date"
+                class="day-button"
+                [ngClass]="{
+                  'selected-start': isStartDate(date),
+                  'selected-end': isEndDate(date),
+                  'in-range': isDateInRange(date)
+                }"
+                (click)="handleDateSelect(date)"
+              >
+                <span>{{ date | date: 'd' }}</span>
+                <ion-icon 
+                  *ngIf="hasCloud(date)" 
+                  name="cloud" 
+                  class="cloud-icon"
+                ></ion-icon>
+              </div>
+            </div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </div>
+
+    <div class="date-display-container">
+      <div class="date-display">
+        <ion-icon name="calendar-outline"></ion-icon>
+        <span>{{ routeData.startDate ? formatDate(routeData.startDate) : 'Start date' }}</span>
+      </div>
+      <div class="date-display">
+        <ion-icon name="calendar-outline"></ion-icon>
+        <span>{{ routeData.endDate ? formatDate(routeData.endDate) : 'End date' }}</span>
+      </div>
+      <div class="date-display" *ngIf="routeData.duration > 0">
+        <ion-icon name="time-outline"></ion-icon>
+        <span>{{ routeData.duration }} days</span>
+      </div>
+    </div>
+
+    <ion-button expand="block" (click)="nextStep()" class="next-button" [disabled]="!routeData.startDate || !routeData.endDate">
+      Next
+    </ion-button>
+  </div>
+
+  <!-- Step 2: Category Selection -->
+  <div *ngIf="currentStep === 2" class="step-container">
+    <h2 class="text-center">Choose Categories</h2>
+    
+    <div class="categories-container">
+      <ion-card *ngFor="let category of categories" 
+                [ngClass]="{'selected': selectedCategories.includes(category.id)}"
+                (click)="toggleCategory(category.id)">
+        <ion-card-content>
+          <ion-icon [name]="category.icon"></ion-icon>
+          <span>{{ category.name }}</span>
+        </ion-card-content>
+      </ion-card>
+    </div>
+    
+    <div class="selected-categories" *ngIf="selectedCategories.length > 0">
+      <p>Selected: {{ selectedCategories.length }}/3</p>
+    </div>
+    
+    <ion-button expand="block" (click)="nextStep()" class="next-button" [disabled]="selectedCategories.length === 0">
+      Next
+    </ion-button>
+  </div>
+  
+  <!-- Step 3: Place Selection -->
+  <div *ngIf="currentStep === 3" class="step-container">
+    <h2 class="text-center">Choose Places</h2>
+    
+    <div *ngIf="isLoading" class="loading-container">
+      <ion-spinner></ion-spinner>
+      <p>Loading places...</p>
+    </div>
+    
+    <div *ngIf="!isLoading" class="places-container">
+      <ion-card *ngFor="let place of places" 
+                [ngClass]="{'selected': isPlaceSelected(place)}"
+                (click)="togglePlace(place)">
+        <img [src]="place.image || 'assets/images/placeholder.jpg'" />
+        <ion-card-content>
+          <h3>{{ place.name }}</h3>
+          <p>{{ place.location || 'No location info' }}</p>
+          <p *ngIf="place.entrancePrice">Entrance: {{ place.entrancePrice | currency }}</p>
+          <p *ngIf="place.openingHours">Hours: {{ place.openingHours }}</p>
+        </ion-card-content>
+      </ion-card>
+    </div>
+    
+    <div class="selected-places" *ngIf="routeData.places.length > 0">
+      <p>Selected: {{ routeData.places.length }}</p>
+      <p *ngIf="routeData.price > 0">Estimated cost: {{ routeData.price | currency }}</p>
+    </div>
+    
+    <ion-button expand="block" (click)="onSubmit()" class="submit-button" [disabled]="routeData.places.length === 0">
+      Create Route
+    </ion-button>
+  </div>
 </ion-content>

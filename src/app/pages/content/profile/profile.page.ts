@@ -83,7 +83,7 @@ export class ProfilePage implements OnInit {
       // Auth state'i temizle
       this.user = null;
       // Login sayfasına yönlendir
-      await this.router.navigate(['/auth/login']);
+      await this.router.navigate(['/auth']);
       this.navController.setDirection('root');
     } catch (error) {
       console.error("Error logging out: ", error);

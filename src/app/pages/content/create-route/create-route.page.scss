@@ -1,0 +1,303 @@
+ion-content {
+  --background: #f5f5f5;
+  --padding-start: 12px;
+  --padding-end: 12px;
+  --padding-bottom: 70px;
+  position: relative;
+  height: 100%;
+
+  // Custom Header
+  .custom-header {
+    display: flex;
+    align-items: center;
+    padding: 8px 0;
+    margin-bottom: 16px;
+    position: relative;
+
+    .back-button {
+      --padding-start: 0;
+      --padding-end: 0;
+      margin: 0;
+      font-size: 20px;
+      height: 32px;
+      color: #000;
+      min-width: 32px;
+      position: absolute;
+      left: 0;
+      z-index: 10;
+    }
+
+    .title-container {
+      width: 100%;
+      text-align: center;
+      padding-right: 16px;
+    }
+
+    h1 {
+      font-size: 17px;
+      font-weight: 500;
+      margin: 0 auto;
+      color: #000;
+      display: inline-block;
+    }
+
+    .header-spacer {
+      width: 32px;
+      min-width: 32px;
+    }
+  }
+
+  // Step Container
+  .step-container {
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-height: calc(100vh - 120px);
+  }
+
+  h2 {
+    font-size: 16px;
+    font-weight: 500;
+    color: #666;
+    margin: 0;
+    text-align: center;
+  }
+
+  .text-center {
+    text-align: center;
+  }
+
+  // Calendar Styles
+  .calendar-container {
+    max-width: 340px; // More balanced width
+    width: 100%;
+    margin: 0 auto;
+    
+    ion-card {
+      margin: 0;
+      border-radius: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      background: #ffffff;
+      
+      ion-card-content {
+        padding: 12px 10px; // Balanced horizontal padding
+        background: #ffffff;
+      }
+    }
+  }
+
+  .calendar-card-content {
+    background: #ffffff;
+  }
+
+  .calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    background: #ffffff;
+    padding: 0 6px; // Balanced padding
+
+    .month-title {
+      color: #0891b2;
+      font-weight: 500;
+      font-size: 15px;
+    }
+
+    .navigation-buttons {
+      display: flex;
+      
+      ion-button {
+        --padding-start: 4px;
+        --padding-end: 4px;
+        --color: #0891b2;
+        height: 24px;
+        width: 24px;
+      }
+    }
+  }
+
+  .calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0;
+    background: #ffffff;
+    padding: 0 1px; // Minimal padding
+
+    .weekday-header {
+      text-align: center;
+      font-size: 10px;
+      font-weight: 500;
+      color: #666;
+      padding: 4px 0;
+      letter-spacing: 0.3px;
+    }
+
+    .calendar-day {
+      aspect-ratio: 1;
+      position: relative;
+      font-size: 11px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      &.empty {
+        background: transparent;
+      }
+    }
+
+    .day-button {
+      width: 34px; // Balanced size
+      height: 34px; // Balanced size
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      cursor: pointer;
+      
+      &.selected-start, &.selected-end {
+        background-color: #0891b2;
+        color: white;
+        border-radius: 50%;
+      }
+      
+      &.in-range {
+        background-color: rgba(8, 145, 178, 0.1);
+        color: #0891b2;
+      }
+      
+      .cloud-icon {
+        position: absolute;
+        bottom: -2px;
+        font-size: 10px;
+        color: #999;
+      }
+    }
+  }
+
+  .date-display-container {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+    
+    .date-display {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background-color: black;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 13px;
+      
+      ion-icon {
+        color: #666;
+        font-size: 15px;
+      }
+    }
+  }
+
+  .next-button {
+    --background: #0891b2;
+    --border-radius: 8px;
+    --box-shadow: none;
+    margin: 0;
+    margin-top: 8px;
+    
+    &:hover {
+      --background: #0891b2ee;
+    }
+  }
+
+  // Categories Styles
+  .categories-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    
+    ion-card {
+      margin: 0;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      
+      &.selected {
+        border: 2px solid #0891b2;
+        
+        ion-icon {
+          color: #0891b2;
+        }
+      }
+      
+      ion-card-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 15px;
+        
+        ion-icon {
+          font-size: 24px;
+          margin-bottom: 8px;
+        }
+      }
+    }
+  }
+
+  .selected-categories {
+    text-align: center;
+    color: #666;
+    font-size: 14px;
+  }
+
+  // Places Styles
+  .places-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    
+    ion-card {
+      margin: 0;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      
+      &.selected {
+        border: 2px solid #0891b2;
+      }
+      
+      img {
+        width: 100%;
+        height: 120px;
+        object-fit: cover;
+      }
+      
+      ion-card-content {
+        padding: 10px;
+        
+        h3 {
+          margin: 0 0 5px;
+          font-size: 16px;
+          font-weight: 500;
+        }
+        
+        p {
+          margin: 0;
+          color: #666;
+          font-size: 14px;
+        }
+      }
+    }
+  }
+
+  .selected-places {
+    text-align: center;
+    color: #666;
+    font-size: 14px;
+  }
+
+  .submit-button {
+    --background: #0891b2;
+    --border-radius: 8px;
+    margin-top: 20px;
+  }
+}
