@@ -5,6 +5,8 @@ import { LoadingController, ToastController } from '@ionic/angular';
 import { RouteService } from '../../../services/route.service';
 import { Route } from '../../../models/route.model';
 import { Place } from '../../../models/place.model';
+import { Preferences } from '../../../models/preferences.model';
+import { PreferencesService } from '../../../services/preferences.service';
 
 
 @Component({
@@ -29,10 +31,13 @@ export class CreateRoutePage implements OnInit {
   
   // Categories for selection
   categories = [
-    { id: 'cultural', name: 'Cultural', icon: 'museum' },
-    { id: 'nature', name: 'Natural Park', icon: 'leaf' },
-    { id: 'adventure', name: 'Adventure', icon: 'compass' }
+    { id: 'museum', name: 'Museum', icon: 'landmark' },
+    { id: 'historic', name: 'Historic', icon: 'library' },
+    { id: 'park', name: 'Park', icon: 'leaf' },
+    { id: 'shopping', name: 'Shopping', icon: 'shopping-bag' },
+    { id: 'food', name: 'Food', icon: 'utensils' }
   ];
+  
   
   // Selected categories
   selectedCategories: string[] = [];
@@ -47,7 +52,8 @@ export class CreateRoutePage implements OnInit {
     private router: Router,
     private routeService: RouteService,
     private loadingController: LoadingController,
-    private toastController: ToastController
+    private toastController: ToastController,
+    private preferencesService: PreferencesService
   ) {}
 
   ngOnInit() {
@@ -373,81 +379,91 @@ loadPlaces() {
     );
   }*/
  // In your create-route.page.ts
-async onSubmit() {
+ async onSubmit() {
   if (this.routeData.places.length === 0) {
     this.showToast('Please select at least one place');
     return;
   }
-  
+
   // Show loading indicator
   const loading = await this.loadingController.create({
     message: 'Creating your route...',
     spinner: 'circles'
   });
   await loading.present();
-  
+
   // Set start and end places
   if (this.routeData.places.length > 0) {
     this.routeData.startPlace = this.routeData.places[0];
     this.routeData.endPlace = this.routeData.places[this.routeData.places.length - 1];
   }
-  
+
   // Calculate duration
   this.routeData.calculateDuration();
-  
+
   // Add user ID (you would get this from your auth service)
   this.routeData.userId = 1; // Replace with actual user ID
-  
+
+  // ✅ 1. Preferences nesnesini oluştur
+  const preference = new Preferences({
+    type: this.selectedCategories[0] || 'cultural',
+    duration: this.routeData.duration,
+    startDate: this.routeData.startDate,
+    endDate: this.routeData.endDate,
+    userId: this.routeData.userId
+    
+  });
+
+  console.log('Submitting preference data:', preference);
   console.log('Submitting route data:', this.routeData);
-  
-  // Format the data for the backend
-  const routeForBackend = new Route();
-  routeForBackend.startPlace = this.routeData.startPlace;
-  routeForBackend.endPlace = this.routeData.endPlace;
-  routeForBackend.duration = this.routeData.duration;
-  routeForBackend.startDate = this.routeData.startDate;
-  routeForBackend.endDate = this.routeData.endDate;
-  routeForBackend.places = this.routeData.places;
-  routeForBackend.userId = this.routeData.userId;
-  routeForBackend.price = 0; // Set default or calculated price
-  
-  console.log('Formatted route data for backend:', routeForBackend);
-  
-  // Send to backend
-  this.routeService.createRoute(routeForBackend).subscribe(
-    async (response) => {
-      await loading.dismiss();
-      
-      console.log('Route created successfully:', response);
-      
-      // Show success message
-      const toast = await this.toastController.create({
-        message: 'Your route has been created successfully!',
-        duration: 2000,
-        position: 'bottom',
-        color: 'success'
-      });
-      await toast.present();
-      
-      // Navigate back to home
-      this.router.navigate(['/content/home']);
-    },
-    async (error) => {
-      await loading.dismiss();
-      
-      console.error('Error creating route:', error);
-      
-      // Show error message
-      const toast = await this.toastController.create({
-        message: 'Failed to create route. Please try again.',
-        duration: 3000,
-        position: 'bottom',
-        color: 'danger'
-      });
-      await toast.present();
-    }
-  );
+
+  // ✅ 2. Backend'e gönderim işlemleri
+  try {
+    // Preferences'ı gönder
+    await this.preferencesService.savePreferences(preference).toPromise();
+
+    // Route'u gönder
+    const routeForBackend = new Route({
+      startPlace: this.routeData.startPlace,
+      endPlace: this.routeData.endPlace,
+      duration: this.routeData.duration,
+      startDate: this.routeData.startDate,
+      endDate: this.routeData.endDate,
+      places: this.routeData.places,
+      userId: this.routeData.userId,
+      price: 0
+    });
+
+    const response = await this.routeService.createRoute(routeForBackend).toPromise();
+
+    await loading.dismiss();
+
+    console.log('Route created successfully:', response);
+
+    const toast = await this.toastController.create({
+      message: 'Your route has been created successfully!',
+      duration: 2000,
+      position: 'bottom',
+      color: 'success'
+    });
+    await toast.present();
+
+    this.router.navigate(['/content/home']);
+
+  } catch (error) {
+    await loading.dismiss();
+    console.error('Error submitting data:', error);
+
+    const toast = await this.toastController.create({
+      message: 'Failed to create route or preferences. Please try again.',
+      duration: 3000,
+      position: 'bottom',
+      color: 'danger'
+    });
+    await toast.present();
+  }
 }
+
   
   // Validate route data
   validateRouteData(): boolean {
