@@ -10,6 +10,8 @@ export class Place {
   category?: string;
   description?: string;
   createdAt?: Date;
+  types?: string[]; 
+  photos?: { photo_reference: string }[];
   
   constructor(data: Partial<Place> = {}) {
     this.id = data.id;
@@ -22,6 +24,7 @@ export class Place {
     this.category = data.category;
     this.description = data.description;
     this.createdAt = data.createdAt;
+    this.types = data.types || [];
   }
   
   getScore(): number {

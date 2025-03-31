@@ -5,6 +5,10 @@ import { LoadingController, ToastController } from '@ionic/angular';
 import { RouteService } from '../../../services/route.service';
 import { Route } from '../../../models/route.model';
 import { Place } from '../../../models/place.model';
+import { Preferences } from '../../../models/preferences.model';
+import { PreferencesService } from '../../../services/preferences.service';
+import { Geolocation } from '@capacitor/geolocation';
+import { environment } from 'src/environments/environment';
 
 
 @Component({
@@ -13,8 +17,9 @@ import { Place } from '../../../models/place.model';
   styleUrls: ['./create-route.page.scss'],
 })
 export class CreateRoutePage implements OnInit {
-  currentStep = 1;
+  currentStep = 0;
   totalSteps = 3;
+  lastLocation: { lat: number, lng: number } | null = null;
   
   // Calendar related properties
   currentMonth: Date = new Date();
@@ -29,13 +34,19 @@ export class CreateRoutePage implements OnInit {
   
   // Categories for selection
   categories = [
-    { id: 'cultural', name: 'Cultural', icon: 'museum' },
-    { id: 'nature', name: 'Natural Park', icon: 'leaf' },
-    { id: 'adventure', name: 'Adventure', icon: 'compass' }
+    { id: 'museum', name: 'Museum', icon: 'landmark' },
+    { id: 'historic', name: 'Historic', icon: 'library' },
+    { id: 'park', name: 'Park', icon: 'leaf' },
+    { id: 'shopping', name: 'Shopping', icon: 'shopping-bag' },
+    { id: 'food', name: 'Food', icon: 'utensils' }
   ];
+  
   
   // Selected categories
   selectedCategories: string[] = [];
+  // create-route.page.ts içinde constructor'dan önce ekle
+  allowedCategories = ['museum', 'park', 'shopping_mall', 'restaurant', 'tourist_attraction', 'art_gallery'];
+
 
   // Places for selection (will be loaded from API)
   places: Place[] = [];
@@ -47,7 +58,8 @@ export class CreateRoutePage implements OnInit {
     private router: Router,
     private routeService: RouteService,
     private loadingController: LoadingController,
-    private toastController: ToastController
+    private toastController: ToastController,
+    private preferencesService: PreferencesService
   ) {}
 
   ngOnInit() {
@@ -61,55 +73,13 @@ loadPlaces() {
   
   // First try to load from API
   this.routeService.getPlaces().subscribe(
-    (places) => {
-      console.log('Places loaded successfully:', places);
-      this.places = places;
+    (response: any) => {
+      console.log("API'den dönen veri:", response); // debug için
+      this.places = Array.isArray(response.results) ? response.results : [];
       this.isLoading = false;
-    },
+    },  
     (error) => {
       console.error('Error loading places from API:', error);
-      
-      // If API fails, use hardcoded places as fallback
-      console.log('Using hardcoded places as fallback');
-      this.places = [
-        {
-          id: '1',
-          name: 'Mount Bromo',
-          openingHours: '9:00 AM - 5:00 PM',
-          entrancePrice: 15,
-          coordination: '-7.9424,112.9532',
-          location: 'Jawa Timur',
-          image: 'assets/images/placeholder.jpg',
-          category: 'nature',
-          description: 'An active volcano and popular tourist destination in East Java, Indonesia.',
-          getScore: () => 0 // Default implementation
-        },
-        {
-          id: '2',
-          name: 'Borobudur Temple',
-          openingHours: '8:00 AM - 4:00 PM',
-          entrancePrice: 25,
-          coordination: '-7.6079,110.2038',
-          location: 'Jawa Tengah',
-          image: 'assets/images/placeholder.jpg',
-          category: 'cultural',
-          description: 'A 9th-century Mahayana Buddhist temple in Central Java, Indonesia.',
-          getScore: () => 0 // Default implementation
-        },
-        {
-          id: '3',
-          name: 'Bali Beach',
-          openingHours: '24 hours',
-          entrancePrice: 0,
-          coordination: '-8.3405,115.0920',
-          location: 'Bali',
-          image: 'assets/images/placeholder.jpg',
-          category: 'adventure',
-          description: 'Beautiful beaches with golden sands and clear waters in Bali, Indonesia.',
-          getScore: () => 0 // Default implementation
-        }
-      ];
-      
       this.isLoading = false;
     }
   );
@@ -120,13 +90,12 @@ loadPlaces() {
       this.loadPlaces();
       return;
     }
-    
+  
     this.isLoading = true;
-    // For simplicity, we'll just use the first category
-    // In a real app, you might want to combine results from multiple categories
     this.routeService.getPlacesByCategory(this.selectedCategories[0]).subscribe(
-      (places) => {
-        this.places = places;
+      (response: any) => {
+        console.log('Kategori verisi:', response); // Debug logu kalsın
+        this.places = Array.isArray(response.results) ? response.results : [];
         this.isLoading = false;
       },
       (error) => {
@@ -136,7 +105,7 @@ loadPlaces() {
       }
     );
   }
-
+  
   // Calendar related methods
   generateCalendarDays() {
     const year = this.currentMonth.getFullYear();
@@ -373,81 +342,91 @@ loadPlaces() {
     );
   }*/
  // In your create-route.page.ts
-async onSubmit() {
+ async onSubmit() {
   if (this.routeData.places.length === 0) {
     this.showToast('Please select at least one place');
     return;
   }
-  
+
   // Show loading indicator
   const loading = await this.loadingController.create({
     message: 'Creating your route...',
     spinner: 'circles'
   });
   await loading.present();
-  
+
   // Set start and end places
   if (this.routeData.places.length > 0) {
     this.routeData.startPlace = this.routeData.places[0];
     this.routeData.endPlace = this.routeData.places[this.routeData.places.length - 1];
   }
-  
+
   // Calculate duration
   this.routeData.calculateDuration();
-  
+
   // Add user ID (you would get this from your auth service)
   this.routeData.userId = 1; // Replace with actual user ID
-  
+
+  // ✅ 1. Preferences nesnesini oluştur
+  const preference = new Preferences({
+    type: this.selectedCategories[0] || 'cultural',
+    duration: this.routeData.duration,
+    startDate: this.routeData.startDate,
+    endDate: this.routeData.endDate,
+    userId: this.routeData.userId
+    
+  });
+
+  console.log('Submitting preference data:', preference);
   console.log('Submitting route data:', this.routeData);
-  
-  // Format the data for the backend
-  const routeForBackend = new Route();
-  routeForBackend.startPlace = this.routeData.startPlace;
-  routeForBackend.endPlace = this.routeData.endPlace;
-  routeForBackend.duration = this.routeData.duration;
-  routeForBackend.startDate = this.routeData.startDate;
-  routeForBackend.endDate = this.routeData.endDate;
-  routeForBackend.places = this.routeData.places;
-  routeForBackend.userId = this.routeData.userId;
-  routeForBackend.price = 0; // Set default or calculated price
-  
-  console.log('Formatted route data for backend:', routeForBackend);
-  
-  // Send to backend
-  this.routeService.createRoute(routeForBackend).subscribe(
-    async (response) => {
-      await loading.dismiss();
-      
-      console.log('Route created successfully:', response);
-      
-      // Show success message
-      const toast = await this.toastController.create({
-        message: 'Your route has been created successfully!',
-        duration: 2000,
-        position: 'bottom',
-        color: 'success'
-      });
-      await toast.present();
-      
-      // Navigate back to home
-      this.router.navigate(['/content/home']);
-    },
-    async (error) => {
-      await loading.dismiss();
-      
-      console.error('Error creating route:', error);
-      
-      // Show error message
-      const toast = await this.toastController.create({
-        message: 'Failed to create route. Please try again.',
-        duration: 3000,
-        position: 'bottom',
-        color: 'danger'
-      });
-      await toast.present();
-    }
-  );
+
+  // ✅ 2. Backend'e gönderim işlemleri
+  try {
+    // Preferences'ı gönder
+    await this.preferencesService.savePreferences(preference).toPromise();
+
+    // Route'u gönder
+    const routeForBackend = new Route({
+      startPlace: this.routeData.startPlace,
+      endPlace: this.routeData.endPlace,
+      duration: this.routeData.duration,
+      startDate: this.routeData.startDate,
+      endDate: this.routeData.endDate,
+      places: this.routeData.places,
+      userId: this.routeData.userId,
+      price: 0
+    });
+
+    const response = await this.routeService.createRoute(routeForBackend).toPromise();
+
+    await loading.dismiss();
+
+    console.log('Route created successfully:', response);
+
+    const toast = await this.toastController.create({
+      message: 'Your route has been created successfully!',
+      duration: 2000,
+      position: 'bottom',
+      color: 'success'
+    });
+    await toast.present();
+
+    this.router.navigate(['/content/home']);
+
+  } catch (error) {
+    await loading.dismiss();
+    console.error('Error submitting data:', error);
+
+    const toast = await this.toastController.create({
+      message: 'Failed to create route or preferences. Please try again.',
+      duration: 3000,
+      position: 'bottom',
+      color: 'danger'
+    });
+    await toast.present();
+  }
 }
+
   
   // Validate route data
   validateRouteData(): boolean {
@@ -478,4 +457,58 @@ async onSubmit() {
     });
     await toast.present();
   }
+
+  
+  
+  async getNearbyPlaces() {
+    const pos = await Geolocation.getCurrentPosition({ enableHighAccuracy: true });
+    const lat = pos.coords.latitude;
+    const lng = pos.coords.longitude;
+  
+    this.routeService.lastLocation = { lat, lng };
+    this.lastLocation = { lat, lng };
+    this.isLoading = true;
+  
+    try {
+      const response = await fetch(`${environment.apiUrl}/places?lat=${lat}&lng=${lng}`);
+      const data = await response.json();
+  
+      console.log("Gelen veri:", data);
+  
+      // 🔽 Burayı değiştiriyoruz
+      this.places = Array.isArray(data.results) 
+        ? data.results.map((place: any) => {
+            const mainCategory = place.types?.find((type: string) =>
+              this.allowedCategories.includes(type)
+            );
+
+            console.log('Processed place:', {
+              name: place.name,
+              types: place.types,
+              mainCategory: mainCategory
+            });
+      
+  
+            return {
+              id: place.place_id,
+              name: place.name,
+              location: place.vicinity,
+              category: mainCategory || 'other',
+              types: place.types
+            } as Place;
+          })
+        : [];
+  
+      this.isLoading = false;
+    } catch (err) {
+      console.error('Yerler çekilirken hata:', err);
+      this.isLoading = false;
+      this.places = [];
+    }
+  }
+  
+  
+
+  
 }
+

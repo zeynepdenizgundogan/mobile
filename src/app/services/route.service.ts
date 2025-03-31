@@ -4,13 +4,14 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Route } from '../models/route.model';
 import { Place } from '../models/place.model';
+import { environment } from '../../environments/environment'; // Adjust the path as necessary
 
 @Injectable({
   providedIn: 'root'
 })
 export class RouteService {
   private apiUrl = 'http://localhost:5000/api'; // Replace with your actual API URL
-
+  lastLocation: { lat: number, lng: number } | null = null;
   constructor(private http: HttpClient) {}
 
   // Get all places
@@ -19,8 +20,13 @@ export class RouteService {
   }
   
   // Get places by category
-  getPlacesByCategory(category: string): Observable<Place[]> {
-    return this.http.get<Place[]>(`${this.apiUrl}/places?category=${category}`);
+  getPlacesByCategory(category: string) {
+    if (!this.lastLocation) {
+      throw new Error('Konum bilgisi eksik');
+    }
+  
+    const { lat, lng } = this.lastLocation;
+    return this.http.get<any[]>(`${environment.apiUrl}/places?lat=${lat}&lng=${lng}&category=${category}`);
   }
   
   // Create a new route

@@ -10,6 +10,7 @@ export class Route {
   places: Place[];
   price: number;
   userId?: number; // Reference to the user who created this route
+  location?: { lat: number; lng: number; };
   
   constructor(data: Partial<Route> = {}) {
     this.id = data.id;
