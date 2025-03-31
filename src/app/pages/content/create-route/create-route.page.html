@@ -11,6 +11,17 @@
     <div class="header-spacer"></div>
   </div>
 
+  <!-- Step 0: Location Selection -->
+<div *ngIf="currentStep === 0" class="step-container">
+  <h2 class="text-center">Choose Your Location</h2>
+
+  <ion-button expand="block" (click)="getNearbyPlaces()">Use My Current Location</ion-button>
+
+  <!-- Manuel harita entegrasyonu yapılırsa buraya harita konur -->
+
+  <ion-button expand="block" (click)="nextStep()">Continue</ion-button>
+</div>
+
   <!-- Step 1: Date Selection -->
   <div *ngIf="currentStep === 1" class="step-container">
     <h2 class="text-center">Choose Your Dates</h2>
@@ -121,17 +132,17 @@
     </div>
     
     <div *ngIf="!isLoading" class="places-container">
-      <ion-card *ngFor="let place of places" 
-                [ngClass]="{'selected': isPlaceSelected(place)}"
-                (click)="togglePlace(place)">
-        <img [src]="place.image || 'assets/images/placeholder.jpg'" />
+      <ion-card *ngFor="let place of places"
+      [ngClass]="{'selected': isPlaceSelected(place)}"
+      (click)="togglePlace(place)">
         <ion-card-content>
-          <h3>{{ place.name }}</h3>
-          <p>{{ place.location || 'No location info' }}</p>
-          <p *ngIf="place.entrancePrice">Entrance: {{ place.entrancePrice | currency }}</p>
-          <p *ngIf="place.openingHours">Hours: {{ place.openingHours }}</p>
+        <h3>{{ place.name }}</h3>
+        <p>{{ place.location || 'No location info' }}</p>
+        <p *ngIf="place.types?.length">
+          Categories: {{ place.types?.join(', ') }}
+        </p>    
         </ion-card-content>
-      </ion-card>
+</ion-card>
     </div>
     
     <div class="selected-places" *ngIf="routeData.places.length > 0">

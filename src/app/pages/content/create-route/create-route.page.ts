@@ -7,6 +7,8 @@ import { Route } from '../../../models/route.model';
 import { Place } from '../../../models/place.model';
 import { Preferences } from '../../../models/preferences.model';
 import { PreferencesService } from '../../../services/preferences.service';
+import { Geolocation } from '@capacitor/geolocation';
+import { environment } from 'src/environments/environment';
 
 
 @Component({
@@ -15,8 +17,9 @@ import { PreferencesService } from '../../../services/preferences.service';
   styleUrls: ['./create-route.page.scss'],
 })
 export class CreateRoutePage implements OnInit {
-  currentStep = 1;
+  currentStep = 0;
   totalSteps = 3;
+  lastLocation: { lat: number, lng: number } | null = null;
   
   // Calendar related properties
   currentMonth: Date = new Date();
@@ -41,6 +44,9 @@ export class CreateRoutePage implements OnInit {
   
   // Selected categories
   selectedCategories: string[] = [];
+  // create-route.page.ts içinde constructor'dan önce ekle
+  allowedCategories = ['museum', 'park', 'shopping_mall', 'restaurant', 'tourist_attraction', 'art_gallery'];
+
 
   // Places for selection (will be loaded from API)
   places: Place[] = [];
@@ -67,55 +73,13 @@ loadPlaces() {
   
   // First try to load from API
   this.routeService.getPlaces().subscribe(
-    (places) => {
-      console.log('Places loaded successfully:', places);
-      this.places = places;
+    (response: any) => {
+      console.log("API'den dönen veri:", response); // debug için
+      this.places = Array.isArray(response.results) ? response.results : [];
       this.isLoading = false;
-    },
+    },  
     (error) => {
       console.error('Error loading places from API:', error);
-      
-      // If API fails, use hardcoded places as fallback
-      console.log('Using hardcoded places as fallback');
-      this.places = [
-        {
-          id: '1',
-          name: 'Mount Bromo',
-          openingHours: '9:00 AM - 5:00 PM',
-          entrancePrice: 15,
-          coordination: '-7.9424,112.9532',
-          location: 'Jawa Timur',
-          image: 'assets/images/placeholder.jpg',
-          category: 'nature',
-          description: 'An active volcano and popular tourist destination in East Java, Indonesia.',
-          getScore: () => 0 // Default implementation
-        },
-        {
-          id: '2',
-          name: 'Borobudur Temple',
-          openingHours: '8:00 AM - 4:00 PM',
-          entrancePrice: 25,
-          coordination: '-7.6079,110.2038',
-          location: 'Jawa Tengah',
-          image: 'assets/images/placeholder.jpg',
-          category: 'cultural',
-          description: 'A 9th-century Mahayana Buddhist temple in Central Java, Indonesia.',
-          getScore: () => 0 // Default implementation
-        },
-        {
-          id: '3',
-          name: 'Bali Beach',
-          openingHours: '24 hours',
-          entrancePrice: 0,
-          coordination: '-8.3405,115.0920',
-          location: 'Bali',
-          image: 'assets/images/placeholder.jpg',
-          category: 'adventure',
-          description: 'Beautiful beaches with golden sands and clear waters in Bali, Indonesia.',
-          getScore: () => 0 // Default implementation
-        }
-      ];
-      
       this.isLoading = false;
     }
   );
@@ -126,13 +90,12 @@ loadPlaces() {
       this.loadPlaces();
       return;
     }
-    
+  
     this.isLoading = true;
-    // For simplicity, we'll just use the first category
-    // In a real app, you might want to combine results from multiple categories
     this.routeService.getPlacesByCategory(this.selectedCategories[0]).subscribe(
-      (places) => {
-        this.places = places;
+      (response: any) => {
+        console.log('Kategori verisi:', response); // Debug logu kalsın
+        this.places = Array.isArray(response.results) ? response.results : [];
         this.isLoading = false;
       },
       (error) => {
@@ -142,7 +105,7 @@ loadPlaces() {
       }
     );
   }
-
+  
   // Calendar related methods
   generateCalendarDays() {
     const year = this.currentMonth.getFullYear();
@@ -494,4 +457,58 @@ loadPlaces() {
     });
     await toast.present();
   }
+
+  
+  
+  async getNearbyPlaces() {
+    const pos = await Geolocation.getCurrentPosition({ enableHighAccuracy: true });
+    const lat = pos.coords.latitude;
+    const lng = pos.coords.longitude;
+  
+    this.routeService.lastLocation = { lat, lng };
+    this.lastLocation = { lat, lng };
+    this.isLoading = true;
+  
+    try {
+      const response = await fetch(`${environment.apiUrl}/places?lat=${lat}&lng=${lng}`);
+      const data = await response.json();
+  
+      console.log("Gelen veri:", data);
+  
+      // 🔽 Burayı değiştiriyoruz
+      this.places = Array.isArray(data.results) 
+        ? data.results.map((place: any) => {
+            const mainCategory = place.types?.find((type: string) =>
+              this.allowedCategories.includes(type)
+            );
+
+            console.log('Processed place:', {
+              name: place.name,
+              types: place.types,
+              mainCategory: mainCategory
+            });
+      
+  
+            return {
+              id: place.place_id,
+              name: place.name,
+              location: place.vicinity,
+              category: mainCategory || 'other',
+              types: place.types
+            } as Place;
+          })
+        : [];
+  
+      this.isLoading = false;
+    } catch (err) {
+      console.error('Yerler çekilirken hata:', err);
+      this.isLoading = false;
+      this.places = [];
+    }
+  }
+  
+  
+
+  
 }
+
