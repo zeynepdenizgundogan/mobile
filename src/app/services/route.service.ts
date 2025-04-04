@@ -9,9 +9,14 @@ import { Place } from '../models/place.model';
   providedIn: 'root'
 })
 export class RouteService {
-  private apiUrl = 'http://localhost:5000/api'; // Replace with your actual API URL
+  private apiUrl = 'http://localhost:5001/api'; // Replace with your actual API URL
 
   constructor(private http: HttpClient) {}
+  // 🔍 Filtered places by complex preference (kategori, tarih, süre vs.)
+getFilteredPlaces(preference: any): Observable<any> {
+  return this.http.post<any>(`${this.apiUrl}/preferences/available-places`, preference);
+}
+
 
   // Get all places
   getPlaces(): Observable<Place[]> {

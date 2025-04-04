@@ -11,7 +11,9 @@ export class PreferencesService {
   private apiUrl = 'http://localhost:5001/api/preferences'; // Backend API adresin
 
   constructor(private http: HttpClient) {}
-
+  getOptimizedRoutes(preference: Preferences) {
+    return this.http.post<any>('http://localhost:5001/api/preferences', preference);
+  }
   /**
    * Kullanıcı tercihlerini backend'e POST eder.
    * @param preferences Kullanıcının girdiği tercihler (model yapısında)

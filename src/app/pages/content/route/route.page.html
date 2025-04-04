@@ -1,0 +1,32 @@
+<!-- src/app/pages/route/route.page.html -->
+
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Generated Route</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content *ngIf="routes.length > 0; else noRoute">
+  <ion-list *ngFor="let day of routes">
+    <ion-item-divider color="light">
+      <ion-label><strong>{{ day.day }}</strong></ion-label>
+    </ion-item-divider>
+
+    <ion-item *ngFor="let place of day.route">
+      <ion-label>
+        <h2>{{ place.name }}</h2>
+        <p>
+          {{ place.category }} • {{ place.visitStartTime }} - {{ place.visitEndTime }}
+        </p>
+      </ion-label>
+    </ion-item>
+  </ion-list>
+</ion-content>
+
+<ng-template #noRoute>
+  <ion-content>
+    <ion-text color="medium">
+      <p style="text-align:center; margin-top: 2rem;">No route data found.</p>
+    </ion-text>
+  </ion-content>
+</ng-template>

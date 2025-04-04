@@ -33,7 +33,11 @@ const routes: Routes = [
         pathMatch: 'full'
       }
     ]
+  },  {
+    path: 'route',
+    loadChildren: () => import('./route/route.module').then( m => m.RoutePageModule)
   }
+
 ];
 
 @NgModule({
