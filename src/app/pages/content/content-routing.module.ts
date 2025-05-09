@@ -28,15 +28,17 @@ const routes: Routes = [
         loadChildren: () => import('./profile/profile.module').then(m => m.ProfilePageModule)
       },
       {
+        path: 'route',
+        loadChildren: () => import('./route/route.module').then( m => m.RoutePageModule)
+      },
+      {
         path: '',
         redirectTo: 'home',
         pathMatch: 'full'
       }
     ]
-  },  {
-    path: 'route',
-    loadChildren: () => import('./route/route.module').then( m => m.RoutePageModule)
-  }
+  },
+  
 
 ];
 

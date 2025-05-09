@@ -1,32 +1,44 @@
-<!-- src/app/pages/route/route.page.html -->
+<div class="custom-header">
+  <div class="title-container">
+    My Route Plan
+  </div>
+</div>
 
-<ion-header>
-  <ion-toolbar>
-    <ion-title>Generated Route</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content *ngIf="routes.length > 0; else noRoute" class="trip-plan-content">
+  <ion-segment scrollable [value]="selectedDayIndex.toString()" (ionChange)="onSegmentChange($event)">
+    <ion-segment-button *ngFor="let day of routes; let i = index" [value]="i.toString()">
+      <ion-label>Day {{ i + 1 }}</ion-label>
+    </ion-segment-button>
+  </ion-segment>
 
-<ion-content *ngIf="routes.length > 0; else noRoute">
-  <ion-list *ngFor="let day of routes">
-    <ion-item-divider color="light">
-      <ion-label><strong>{{ day.day }}</strong></ion-label>
-    </ion-item-divider>
+  <div *ngIf="routes[selectedDayIndex] as day" class="day-section">
+    <ion-text class="day-title">{{ day.day }}</ion-text>
 
-    <ion-item *ngFor="let place of day.route">
-      <ion-label>
-        <h2>{{ place.name }}</h2>
-        <p>
-          {{ place.category }} • {{ place.visitStartTime }} - {{ place.visitEndTime }}
-        </p>
-      </ion-label>
-    </ion-item>
-  </ion-list>
+    <div class="route-card" *ngFor="let place of day.route; let i = index">
+      <div class="time-column">
+        <span class="start-time">{{ place.visitStartTime }}</span>
+        <span class="end-time">{{ place.visitEndTime }}</span>
+      </div>
+
+      <div class="card-content" [ngClass]="i % 2 === 0 ? 'card-blue' : 'card-white'">
+        <div class="location-info">
+          <h3>{{ place.name }}</h3>
+          <p>{{ place.category }}</p>
+        </div>
+        <button ion-button fill="clear" class="view-map-btn">
+          <ion-icon name="location-outline"></ion-icon> View in Map
+        </button>
+        <div class="route-number">
+          <span>{{ i + 1 }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
 </ion-content>
 
 <ng-template #noRoute>
-  <ion-content>
-    <ion-text color="medium">
-      <p style="text-align:center; margin-top: 2rem;">No route data found.</p>
-    </ion-text>
-  </ion-content>
+  <ion-text color="medium">
+    <p style="text-align:center; margin-top: 2rem;">No route data found.</p>
+  </ion-text>
 </ng-template>
+

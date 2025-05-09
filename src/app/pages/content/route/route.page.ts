@@ -1,4 +1,3 @@
-// src/app/pages/route/route.page.ts
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
@@ -9,6 +8,7 @@ import { Router } from '@angular/router';
 })
 export class RoutePage implements OnInit {
   routes: any[] = [];
+  selectedDayIndex = 0;
 
   constructor(private router: Router) {}
 
@@ -17,5 +17,9 @@ export class RoutePage implements OnInit {
     if (nav?.extras?.state?.['routes']) {
       this.routes = nav.extras.state['routes'];
     }
+  }
+
+  onSegmentChange(event: any) {
+    this.selectedDayIndex = parseInt(event.detail.value, 10);
   }
 }
