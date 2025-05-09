@@ -1,0 +1,44 @@
+<div class="custom-header">
+  <div class="title-container">
+    My Route Plan
+  </div>
+</div>
+
+<ion-content *ngIf="routes.length > 0; else noRoute" class="trip-plan-content">
+  <ion-segment scrollable [value]="selectedDayIndex.toString()" (ionChange)="onSegmentChange($event)">
+    <ion-segment-button *ngFor="let day of routes; let i = index" [value]="i.toString()">
+      <ion-label>Day {{ i + 1 }}</ion-label>
+    </ion-segment-button>
+  </ion-segment>
+
+  <div *ngIf="routes[selectedDayIndex] as day" class="day-section">
+    <ion-text class="day-title">{{ day.day }}</ion-text>
+
+    <div class="route-card" *ngFor="let place of day.route; let i = index">
+      <div class="time-column">
+        <span class="start-time">{{ place.visitStartTime }}</span>
+        <span class="end-time">{{ place.visitEndTime }}</span>
+      </div>
+
+      <div class="card-content" [ngClass]="i % 2 === 0 ? 'card-blue' : 'card-white'">
+        <div class="location-info">
+          <h3>{{ place.name }}</h3>
+          <p>{{ place.category }}</p>
+        </div>
+        <button ion-button fill="clear" class="view-map-btn">
+          <ion-icon name="location-outline"></ion-icon> View in Map
+        </button>
+        <div class="route-number">
+          <span>{{ i + 1 }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</ion-content>
+
+<ng-template #noRoute>
+  <ion-text color="medium">
+    <p style="text-align:center; margin-top: 2rem;">No route data found.</p>
+  </ion-text>
+</ng-template>
+

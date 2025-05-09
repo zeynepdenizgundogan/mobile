@@ -5,6 +5,8 @@ import { LoadingController, ToastController } from '@ionic/angular';
 import { RouteService } from '../../../services/route.service';
 import { Route } from '../../../models/route.model';
 import { Place } from '../../../models/place.model';
+import { Preferences } from '../../../models/preferences.model';
+import { PreferencesService } from '../../../services/preferences.service';
 
 
 @Component({
@@ -29,10 +31,13 @@ export class CreateRoutePage implements OnInit {
   
   // Categories for selection
   categories = [
-    { id: 'cultural', name: 'Cultural', icon: 'museum' },
-    { id: 'nature', name: 'Natural Park', icon: 'leaf' },
-    { id: 'adventure', name: 'Adventure', icon: 'compass' }
+    { id: 'museum', name: 'Museum', icon: 'landmark' },
+    { id: 'historic', name: 'Historic', icon: 'library' },
+    { id: 'park', name: 'Park', icon: 'leaf' },
+    { id: 'shopping', name: 'Shopping', icon: 'shopping-bag' },
+    { id: 'food', name: 'Food', icon: 'utensils' }
   ];
+  
   
   // Selected categories
   selectedCategories: string[] = [];
@@ -47,95 +52,45 @@ export class CreateRoutePage implements OnInit {
     private router: Router,
     private routeService: RouteService,
     private loadingController: LoadingController,
-    private toastController: ToastController
+    private toastController: ToastController,
+    private preferencesService: PreferencesService
   ) {}
 
   ngOnInit() {
     this.generateCalendarDays();
-    this.loadPlaces();
+   
   }
   
  // In your create-route.page.ts
-loadPlaces() {
-  this.isLoading = true;
-  
-  // First try to load from API
-  this.routeService.getPlaces().subscribe(
-    (places) => {
-      console.log('Places loaded successfully:', places);
-      this.places = places;
-      this.isLoading = false;
-    },
-    (error) => {
-      console.error('Error loading places from API:', error);
-      
-      // If API fails, use hardcoded places as fallback
-      console.log('Using hardcoded places as fallback');
-      this.places = [
-        {
-          id: '1',
-          name: 'Mount Bromo',
-          openingHours: '9:00 AM - 5:00 PM',
-          entrancePrice: 15,
-          coordination: '-7.9424,112.9532',
-          location: 'Jawa Timur',
-          image: 'assets/images/placeholder.jpg',
-          category: 'nature',
-          description: 'An active volcano and popular tourist destination in East Java, Indonesia.',
-          getScore: () => 0 // Default implementation
-        },
-        {
-          id: '2',
-          name: 'Borobudur Temple',
-          openingHours: '8:00 AM - 4:00 PM',
-          entrancePrice: 25,
-          coordination: '-7.6079,110.2038',
-          location: 'Jawa Tengah',
-          image: 'assets/images/placeholder.jpg',
-          category: 'cultural',
-          description: 'A 9th-century Mahayana Buddhist temple in Central Java, Indonesia.',
-          getScore: () => 0 // Default implementation
-        },
-        {
-          id: '3',
-          name: 'Bali Beach',
-          openingHours: '24 hours',
-          entrancePrice: 0,
-          coordination: '-8.3405,115.0920',
-          location: 'Bali',
-          image: 'assets/images/placeholder.jpg',
-          category: 'adventure',
-          description: 'Beautiful beaches with golden sands and clear waters in Bali, Indonesia.',
-          getScore: () => 0 // Default implementation
-        }
-      ];
-      
-      this.isLoading = false;
-    }
-  );
-}
-  // Load places by selected categories
-  loadPlacesByCategories() {
-    if (this.selectedCategories.length === 0) {
-      this.loadPlaces();
-      return;
-    }
-    
-    this.isLoading = true;
-    // For simplicity, we'll just use the first category
-    // In a real app, you might want to combine results from multiple categories
-    this.routeService.getPlacesByCategory(this.selectedCategories[0]).subscribe(
-      (places) => {
-        this.places = places;
-        this.isLoading = false;
-      },
-      (error) => {
-        console.error('Error loading places by category:', error);
-        this.isLoading = false;
-        this.showToast('Failed to load places. Please try again.');
-      }
-    );
+ loadFilteredPlaces() {
+  if (!this.routeData.startDate || !this.routeData.endDate || this.selectedCategories.length === 0) {
+    this.showToast('Please select a date range and at least one category');
+    return;
   }
+
+  this.isLoading = true;
+
+  const preference = {
+    type: this.selectedCategories[0],
+    duration: this.routeData.duration,
+    startDate: this.routeData.startDate,
+    endDate: this.routeData.endDate,
+    userId: this.routeData.userId
+  };
+
+  this.routeService.getFilteredPlaces(preference).subscribe({
+    next: (res) => {
+      this.places = res.data;
+      this.isLoading = false;
+      console.log('✅ Filtered places:', this.places);
+    },
+    error: (err) => {
+      this.isLoading = false;
+      console.error('❌ Error loading filtered places:', err);
+      this.showToast('Failed to load filtered places.');
+    }
+  });
+}
 
   // Calendar related methods
   generateCalendarDays() {
@@ -256,7 +211,7 @@ loadPlaces() {
       
       // If moving to step 3, load places based on selected categories
       if (this.currentStep === 3) {
-        this.loadPlacesByCategories();
+        this.loadFilteredPlaces();
       }
     }
   }
@@ -317,137 +272,55 @@ loadPlaces() {
     return this.routeData.places.some(p => p.id === place.id);
   }
 
-  /*// Form submission
-  async onSubmit() {
-    if (!this.validateRouteData()) {
-      return;
-    }
-    
-    // Show loading indicator
-    const loading = await this.loadingController.create({
-      message: 'Creating your route...',
-      spinner: 'circles'
-    });
-    await loading.present();
-    
-    // Set the first selected place as the start place and the last one as the end place
-    if (this.routeData.places.length > 0) {
-      this.routeData.startPlace = this.routeData.places[0];
-      this.routeData.endPlace = this.routeData.places[this.routeData.places.length - 1];
-    }
-    
-    // Add current user ID (you would get this from your auth service)
-    this.routeData.userId = 1; // Replace with actual user ID
-    
-    // Send data to backend
-    this.routeService.createRoute(this.routeData).subscribe(
-      async (response) => {
-        await loading.dismiss();
-        
-        // Show success message
-        const toast = await this.toastController.create({
-          message: 'Your route has been created successfully!',
-          duration: 2000,
-          position: 'bottom',
-          color: 'success'
-        });
-        await toast.present();
-        
-        // Navigate back to home
-        this.router.navigate(['/content/home']);
-      },
-      async (error) => {
-        await loading.dismiss();
-        
-        // Show error message
-        const toast = await this.toastController.create({
-          message: 'Failed to create route. Please try again.',
-          duration: 3000,
-          position: 'bottom',
-          color: 'danger'
-        });
-        await toast.present();
-        
-        console.error('Error creating route:', error);
-      }
-    );
-  }*/
  // In your create-route.page.ts
-async onSubmit() {
-  if (this.routeData.places.length === 0) {
-    this.showToast('Please select at least one place');
-    return;
-  }
-  
-  // Show loading indicator
+ async onSubmit() {
+  if (!this.validateRouteData()) return;
+
   const loading = await this.loadingController.create({
     message: 'Creating your route...',
     spinner: 'circles'
   });
   await loading.present();
-  
-  // Set start and end places
-  if (this.routeData.places.length > 0) {
-    this.routeData.startPlace = this.routeData.places[0];
-    this.routeData.endPlace = this.routeData.places[this.routeData.places.length - 1];
+
+  // User ID ekle
+  this.routeData.userId = 1;
+
+  // Preference objesi hazırla
+  const preference = new Preferences({
+    type: this.selectedCategories[0] || 'cultural',
+    duration: this.routeData.duration,
+    startDate: this.routeData.startDate,
+    endDate: this.routeData.endDate,
+    userId: this.routeData.userId,
+    niceToHavePlaces: this.routeData.places  // bunu backend destekliyorsa
+  });
+
+  try {
+    const response = await this.preferencesService.getOptimizedRoutes(preference).toPromise();
+    await loading.dismiss();
+
+    console.log('✅ Rota başarıyla oluşturuldu:', response.data.routes);
+
+    // Yeni sayfaya yönlendirme
+    this.router.navigate(['/content/route'], {
+      state: { routes: response.data.routes }
+    });
+
+    const toast = await this.toastController.create({
+      message: 'Route created successfully!',
+      duration: 2000,
+      position: 'bottom',
+      color: 'success'
+    });
+    await toast.present();
+
+  } catch (error) {
+    await loading.dismiss();
+    console.error('❌ Rota oluşturulamadı:', error);
+    this.showToast('Route creation failed. Please try again.');
   }
-  
-  // Calculate duration
-  this.routeData.calculateDuration();
-  
-  // Add user ID (you would get this from your auth service)
-  this.routeData.userId = 1; // Replace with actual user ID
-  
-  console.log('Submitting route data:', this.routeData);
-  
-  // Format the data for the backend
-  const routeForBackend = new Route();
-  routeForBackend.startPlace = this.routeData.startPlace;
-  routeForBackend.endPlace = this.routeData.endPlace;
-  routeForBackend.duration = this.routeData.duration;
-  routeForBackend.startDate = this.routeData.startDate;
-  routeForBackend.endDate = this.routeData.endDate;
-  routeForBackend.places = this.routeData.places;
-  routeForBackend.userId = this.routeData.userId;
-  routeForBackend.price = 0; // Set default or calculated price
-  
-  console.log('Formatted route data for backend:', routeForBackend);
-  
-  // Send to backend
-  this.routeService.createRoute(routeForBackend).subscribe(
-    async (response) => {
-      await loading.dismiss();
-      
-      console.log('Route created successfully:', response);
-      
-      // Show success message
-      const toast = await this.toastController.create({
-        message: 'Your route has been created successfully!',
-        duration: 2000,
-        position: 'bottom',
-        color: 'success'
-      });
-      await toast.present();
-      
-      // Navigate back to home
-      this.router.navigate(['/content/home']);
-    },
-    async (error) => {
-      await loading.dismiss();
-      
-      console.error('Error creating route:', error);
-      
-      // Show error message
-      const toast = await this.toastController.create({
-        message: 'Failed to create route. Please try again.',
-        duration: 3000,
-        position: 'bottom',
-        color: 'danger'
-      });
-      await toast.present();
-    }
-  );
 }
+
   
   // Validate route data
   validateRouteData(): boolean {
