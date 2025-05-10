@@ -71,7 +71,7 @@ export class CreateRoutePage implements OnInit {
   this.isLoading = true;
 
   const preference = {
-    type: this.selectedCategories[0],
+    type: this.selectedCategories,
     duration: this.routeData.duration,
     startDate: this.routeData.startDate,
     endDate: this.routeData.endDate,
@@ -286,15 +286,16 @@ export class CreateRoutePage implements OnInit {
   this.routeData.userId = 1;
 
   // Preference objesi hazırla
-  const preference = new Preferences({
-    type: this.selectedCategories[0] || 'cultural',
-    duration: this.routeData.duration,
-    startDate: this.routeData.startDate,
-    endDate: this.routeData.endDate,
-    userId: this.routeData.userId,
-    niceToHavePlaces: this.routeData.places  // bunu backend destekliyorsa
-  });
-
+const preference = new Preferences({
+  type: Array.isArray(this.selectedCategories) && this.selectedCategories.length > 0
+    ? this.selectedCategories
+    : ['cultural'],
+  duration: this.routeData.duration,
+  startDate: this.routeData.startDate,
+  endDate: this.routeData.endDate,
+  userId: this.routeData.userId,
+  niceToHavePlaces: this.routeData.places
+});
   try {
     const response = await this.preferencesService.getOptimizedRoutes(preference).toPromise();
     await loading.dismiss();
