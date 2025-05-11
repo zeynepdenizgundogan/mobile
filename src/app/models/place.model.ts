@@ -6,7 +6,8 @@ export class Place {
   entrancePrice?: number;
   coordination?: string;
   location?: string;
-  image?: string;
+  image?: string;         // frontend tarafından kullanılacak resim (kopya alan)
+  image_url?: string;     // backend’ten gelen gerçek url
   category?: string;
   description?: string;
   createdAt?: Date;
@@ -18,14 +19,16 @@ export class Place {
     this.entrancePrice = data.entrancePrice;
     this.coordination = data.coordination;
     this.location = data.location;
-    this.image = data.image;
+    this.image_url = data.image_url;
+    this.image = data.image_url || data.image; 
     this.category = data.category;
     this.description = data.description;
     this.createdAt = data.createdAt;
+    this.image_url = data.image_url;
+    this.image = data.image_url || data.image;
   }
   
   getScore(): number {
-    // Implement your scoring logic here
     return 0;
   }
 }

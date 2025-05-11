@@ -30,13 +30,16 @@ export class CreateRoutePage implements OnInit {
   routeData: Route = new Route();
   
   // Categories for selection
-  categories = [
-    { id: 'museum', name: 'Museum', icon: 'landmark' },
-    { id: 'historic', name: 'Historic', icon: 'library' },
-    { id: 'park', name: 'Park', icon: 'leaf' },
-    { id: 'shopping', name: 'Shopping', icon: 'shopping-bag' },
-    { id: 'food', name: 'Food', icon: 'utensils' }
-  ];
+categories = [
+  { id: 'Cultural', name: 'Cultural', icon: 'color-palette' },
+  { id: 'Food', name: 'Food', icon: 'restaurant' },
+  { id: 'Shopping', name: 'Shopping', icon: 'cart' },
+  { id: 'Entertainment', name: 'Entertainment', icon: 'tv' },
+  { id: 'Park', name: 'Park', icon: 'leaf' },
+  { id: 'Education', name: 'Education', icon: 'school' },
+  { id: 'Scenic', name: 'Scenic', icon: 'camera' }
+];
+
   
   
   // Selected categories
@@ -71,7 +74,7 @@ export class CreateRoutePage implements OnInit {
   this.isLoading = true;
 
   const preference = {
-    type: this.selectedCategories[0],
+    type: this.selectedCategories,
     duration: this.routeData.duration,
     startDate: this.routeData.startDate,
     endDate: this.routeData.endDate,
@@ -80,7 +83,7 @@ export class CreateRoutePage implements OnInit {
 
   this.routeService.getFilteredPlaces(preference).subscribe({
     next: (res) => {
-      this.places = res.data;
+      this.places = Array.isArray(res.data) ? res.data : res.data.places;
       this.isLoading = false;
       console.log('✅ Filtered places:', this.places);
     },
@@ -287,13 +290,18 @@ export class CreateRoutePage implements OnInit {
 
   // Preference objesi hazırla
   const preference = new Preferences({
-    type: this.selectedCategories[0] || 'cultural',
+    type: this.selectedCategories.length > 0 ? [...this.selectedCategories] : ['cultural'],
     duration: this.routeData.duration,
     startDate: this.routeData.startDate,
     endDate: this.routeData.endDate,
     userId: this.routeData.userId,
-    niceToHavePlaces: this.routeData.places  // bunu backend destekliyorsa
+    latitude: 41.0086,
+    longitude: 28.9784,
+    mustVisit: [...this.routeData.places],
   });
+
+
+
 
   try {
     const response = await this.preferencesService.getOptimizedRoutes(preference).toPromise();
@@ -319,6 +327,9 @@ export class CreateRoutePage implements OnInit {
     console.error('❌ Rota oluşturulamadı:', error);
     this.showToast('Route creation failed. Please try again.');
   }
+  const selectedPlaceIds = this.routeData.places.map(p => p.id);
+  console.log('🟢 Seçilen place ID’leri:', selectedPlaceIds);
+
 }
 
   
