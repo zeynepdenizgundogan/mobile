@@ -124,7 +124,7 @@
       <ion-card *ngFor="let place of places" 
                 [ngClass]="{'selected': isPlaceSelected(place)}"
                 (click)="togglePlace(place)">
-        <img [src]="place.image || 'assets/images/placeholder.jpg'" />
+        <img [src]="place.image_url || 'assets/images/placeholder.jpg'" />
         <ion-card-content>
           <h3>{{ place.name }}</h3>
           <p>{{ place.location || 'No location info' }}</p>

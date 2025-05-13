@@ -7,6 +7,7 @@ export class Place {
   coordination?: string;
   location?: string;
   image?: string;
+  image_url?: string;     // backend’ten gelen gerçek url
   category?: string;
   description?: string;
   createdAt?: Date;
@@ -18,10 +19,12 @@ export class Place {
     this.entrancePrice = data.entrancePrice;
     this.coordination = data.coordination;
     this.location = data.location;
-    this.image = data.image;
+    this.image_url = data.image_url;
+    this.image = data.image_url || data.image;
     this.category = data.category;
     this.description = data.description;
     this.createdAt = data.createdAt;
+    console.log('🖼️ Place created:', { name: this.name, image: this.image, image_url: this.image_url });
   }
   
   getScore(): number {
