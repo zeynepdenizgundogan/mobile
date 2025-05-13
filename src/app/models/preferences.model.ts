@@ -8,6 +8,8 @@ export class Preferences {
   endDate: Date | null;
   userId?: number;
   niceToHavePlaces: Place[];
+  startLat: number;
+  startLon: number;
 
   constructor(data: Partial<Preferences> = {}) {
     this.id = data.id;
@@ -21,5 +23,7 @@ export class Preferences {
     this.endDate = data.endDate ? new Date(data.endDate) : null;
     this.userId = data.userId;
     this.niceToHavePlaces = data.niceToHavePlaces || [];
+    this.startLat = data.startLat || 0;
+    this.startLon = data.startLon || 0;
   }
 }
