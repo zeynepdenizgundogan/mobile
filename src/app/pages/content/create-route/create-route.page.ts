@@ -84,8 +84,6 @@ categories = [
     next: (res) => {
       this.places = res.data;
       this.isLoading = false;
-      console.log('✅ Filtered places:', this.places);
-      console.log('🖼️ Place images:', this.places.map(p => ({ name: p.name, image_url: p.image_url })));
     },
     error: (err) => {
       this.isLoading = false;
