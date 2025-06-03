@@ -1,5 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+import { Route } from 'src/app/models/route.model';
+
 
 declare var google: any; // Google Maps global objesi
 
@@ -13,19 +16,45 @@ export class RoutePage implements OnInit {
   selectedDayIndex = 0;
   map: any;
   markers: any[] = [];
+  mapLoadError: boolean = false;
+  selectedCategories: string[] = [];
+  mustVisitList: any[] = [];
+  startLocation: any = null;
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private http: HttpClient) {}
+
 
   ngOnInit() {
-    const nav = this.router.getCurrentNavigation();
-    if (nav?.extras?.state?.['routes']) {
-      this.routes = nav.extras.state['routes'];
-    }
+  const nav = this.router.getCurrentNavigation();
+  const state = history.state;
+
+  if (state?.selectedCategories) {
+    this.selectedCategories = state.selectedCategories;
+  }
+
+  if (state?.mustVisitList) {
+    this.mustVisitList = state.mustVisitList;
+  }
+
+  if (state?.startLocation) {
+    this.startLocation = state.startLocation;
+  }
+
+  if (state?.routes) {
+    this.routes = state.routes;
+  }
+  console.log('Navigation state:', nav?.extras?.state); // Debug log
+  if (nav?.extras?.state?.['routes']) {
+    this.routes = nav.extras.state['routes'];
+  } else {
+    console.warn('No routes data found in navigation state');
+  }
 
   this.loadGoogleMapsScript().then(() => {
     this.loadMap();
   }).catch(err => {
     console.error('Google Maps script yüklenemedi:', err);
+    this.mapLoadError = true;
   });
   }
 
@@ -50,32 +79,34 @@ export class RoutePage implements OnInit {
 
     this.updateMarkers();
   }
+
   loadGoogleMapsScript(): Promise<void> {
-  return new Promise((resolve, reject) => {
-    if ((window as any).google && (window as any).google.maps) {
-      resolve();
-      return;
-    }
+    return new Promise((resolve, reject) => {
+      if ((window as any).google && (window as any).google.maps) {
+        resolve();
+        return;
+      }
 
-    const script = document.createElement('script');
-    script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyAUlrmPWdiKEozVKZE4K8T7PnMuU9j5WXI';
-    script.async = true;
-    script.defer = true;
+      const script = document.createElement('script');
+      script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyAUlrmPWdiKEozVKZE4K8T7PnMuU9j5WXI';
+      script.async = true;
+      script.defer = true;
 
-    script.onload = () => {
-      resolve();
-    };
+      script.onload = () => {
+        resolve();
+      };
 
-    script.onerror = (error) => {
-      reject(error);
-    };
+      script.onerror = (error) => {
+        reject(error);
+      };
 
-    document.body.appendChild(script);
-  });
-}
-
+      document.body.appendChild(script);
+    });
+  }
 
   updateMarkers() {
+    if (!this.map) return; // Skip if map failed to load
+
     // Eski markerları temizle
     this.markers.forEach(marker => marker.setMap(null));
     this.markers = [];
@@ -105,4 +136,56 @@ export class RoutePage implements OnInit {
       this.map.fitBounds(bounds);
     }
   }
+
+  goBack() {
+    this.router.navigateByUrl('/content/create-route', {
+      state: {
+        routes: this.routes,
+        selectedCategories: this.selectedCategories,
+        mustVisitList: this.mustVisitList,
+        startLocation: this.startLocation
+      }
+    });
+  }
+
+async goToHome() {
+  const allPlaces = this.routes
+    .map((day: any) => day.route)
+    .reduce((acc: any[], val: any[]) => acc.concat(val), []);
+
+  const routePayload = {
+    startPlace: allPlaces[0],
+    duration: this.routes.length,
+    startDate: history.state?.startDate,
+    endDate: history.state?.endDate,
+    days: this.routes.map((day: any, index: number) => ({
+      day: index + 1,
+      route: day.route.map((p: any) => ({
+        id: p.id,
+        name: p.name,
+        latitude: p.latitude,
+        longitude: p.longitude,
+        category: p.category
+      }))
+    })),
+    userId: 1
+  };
+
+
+  console.log('📦 Backend\'e gönderilen rota:', routePayload);
+
+  try {
+    const result = await this.http.post('http://localhost:5001/api/routes', routePayload).toPromise();
+    console.log('✅ Rota başarıyla kaydedildi:', result);
+    await this.router.navigateByUrl('/content/home');
+  } catch (error: any) {
+    console.error('❌ Rota kaydedilemedi:', error?.message || error);
+    alert('Rota kaydedilemedi. Lütfen tekrar deneyin.');
+  }
+}
+
+
+
+
+
 }

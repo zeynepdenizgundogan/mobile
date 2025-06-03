@@ -5,6 +5,7 @@ import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
 import { initializeApp } from "firebase/app";
 import { environment } from "src/environments/environment.prod";
 import { LocationService } from '../../../services/location.service';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-home',
@@ -13,23 +14,7 @@ import { LocationService } from '../../../services/location.service';
 })
 export class HomePage {
   // Tanımlamanız gereken popularItems dizisi
-  popularItems = [
-    {
-      name: 'Beach Paradise',
-      location: 'Bali, Indonesia',
-      rating: 4.8,
-      image: 'assets/images/beach.jpg',
-      userAvatar: 'assets/images/user1.jpg',
-    },
-    {
-      name: 'Mountain Adventure',
-      location: 'Aspen, Colorado',
-      rating: 4.5,
-      image: 'assets/images/mountain.jpg',
-      userAvatar: 'assets/images/user2.jpg',
-    },
-  ];
-
+  public savedRoutes: any[] = [];
   user: any = null;
   locationCountry: string = "";  // Konum bilgisi için bir değişken
   locationCity: string = "";  // Konum bilgisi için bir değişken
@@ -41,7 +26,8 @@ export class HomePage {
   constructor(
     private alertController: AlertController,
     private navController: NavController,
-    private locationService: LocationService
+    private locationService: LocationService,
+    private http: HttpClient
   ) {}
 
   ngOnInit() {
@@ -55,5 +41,26 @@ export class HomePage {
 
     const auth = getAuth();
     this.user = auth.currentUser;
+    this.loadSavedRoutes();
   }
+
+    loadSavedRoutes() {
+    this.http.get<any>('http://localhost:5001/api/routes/1') // 👈 userId = 1 örnek
+      .subscribe({
+        next: (res) => {
+          this.savedRoutes = res.routes;
+          console.log('📦 Kayıtlı rotalar:', this.savedRoutes);
+        },
+        error: (err) => {
+          console.error('❌ Rotalar yüklenemedi:', err);
+        }
+      });
+  }
+
+  goToRouteDetail(route: any) {
+  this.navController.navigateForward('/content/route-view', {
+    state: { routeData: route }
+  });
+}
+
 }

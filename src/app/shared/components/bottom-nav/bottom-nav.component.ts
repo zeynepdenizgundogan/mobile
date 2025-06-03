@@ -14,6 +14,7 @@ export class BottomNavComponent {
   }
 
   navigate(route: string): void {
-    this.router.navigate(['/content' + route]);
+    const cleanedRoute = route.startsWith('/') ? route.slice(1) : route;
+    this.router.navigate(['/content', cleanedRoute]);
   }
 }

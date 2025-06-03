@@ -322,8 +322,19 @@ async onSubmit() {
     console.log('✅ Rota yanıtı:', response.data.routes);
 
     this.router.navigate(['/content/route'], {
-      state: { routes: response.data.routes }
-    });
+    state: {
+      routes: response.data.routes,
+      startDate: this.routeData.startDate?.toISOString(),
+      endDate: this.routeData.endDate?.toISOString(),
+      duration: this.routeData.duration,
+      selectedCategories: this.selectedCategories,
+      mustVisitList: this.routeData.places,
+      startLocation: {
+        lat: 41.0370,
+        lon: 28.9850
+      }
+    }
+  });
 
     const toast = await this.toastController.create({
       message: 'Route created successfully!',
