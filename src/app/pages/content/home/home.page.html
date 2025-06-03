@@ -53,29 +53,17 @@
     <!-- Itineraries Grid -->
     <ion-grid>
       <ion-row>
-        <ion-col size="6" *ngFor="let item of popularItems">
-          <ion-card class="itinerary-card">
+        <ion-col size="6" *ngFor="let route of savedRoutes">
+          <ion-card class="itinerary-card" (click)="goToRouteDetail(route)">
             <div class="card-image-container">
-              <img [src]="item.image" class="card-image" />
-              <ion-button fill="clear" class="favorite-button">
-                <ion-icon slot="icon-only" name="heart-outline"></ion-icon>
-              </ion-button>
+              <img src="assets/images/placeholder.jpg" class="card-image" />
             </div>
             <ion-card-content>
-              <h3>{{ item.name }}</h3>
+              <h3>{{ route.title || 'Unnamed Trip' }}</h3>
               <div class="card-footer">
                 <div class="location-info">
                   <ion-icon name="location-outline"></ion-icon>
-                  <span>{{ item.location }}</span>
-                </div>
-                <div class="rating-user">
-                  <div class="rating">
-                    <ion-icon name="star" color="warning"></ion-icon>
-                    <span>{{ item.rating }}</span>
-                  </div>
-                  <ion-avatar class="user-avatar">
-                    <img [src]="item.userAvatar" />
-                  </ion-avatar>
+                  <span>{{ route.startPlace?.name || 'Unknown' }}</span>
                 </div>
               </div>
             </ion-card-content>

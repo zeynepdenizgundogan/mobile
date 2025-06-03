@@ -32,15 +32,18 @@ const routes: Routes = [
         loadChildren: () => import('./route/route.module').then( m => m.RoutePageModule)
       },
       {
+        path: 'route-view',
+        loadChildren: () => import('./route-view/route-view.module').then( m => m.RouteViewPageModule)
+      },
+      {
         path: '',
         redirectTo: 'home',
         pathMatch: 'full'
       }
     ]
-  },
-  
-
+  }
 ];
+
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],

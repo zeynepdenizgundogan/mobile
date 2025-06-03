@@ -124,11 +124,10 @@
       <ion-card *ngFor="let place of places" 
                 [ngClass]="{'selected': isPlaceSelected(place)}"
                 (click)="togglePlace(place)">
-        <img [src]="place.image || 'assets/images/placeholder.jpg'" />
+        <img [src]="place.image_url || 'assets/images/placeholder.jpg'" />
         <ion-card-content>
           <h3>{{ place.name }}</h3>
           <p>{{ place.location || 'No location info' }}</p>
-          <p *ngIf="place.entrancePrice">Entrance: {{ place.entrancePrice | currency }}</p>
           <p *ngIf="place.openingHours">Hours: {{ place.openingHours }}</p>
         </ion-card-content>
       </ion-card>
@@ -136,7 +135,6 @@
     
     <div class="selected-places" *ngIf="routeData.places.length > 0">
       <p>Selected: {{ routeData.places.length }}</p>
-      <p *ngIf="routeData.price > 0">Estimated cost: {{ routeData.price | currency }}</p>
     </div>
     
     <ion-button expand="block" (click)="onSubmit()" class="submit-button" [disabled]="routeData.places.length === 0">

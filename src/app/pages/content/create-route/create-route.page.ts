@@ -30,13 +30,15 @@ export class CreateRoutePage implements OnInit {
   routeData: Route = new Route();
   
   // Categories for selection
-  categories = [
-    { id: 'museum', name: 'Museum', icon: 'landmark' },
-    { id: 'historic', name: 'Historic', icon: 'library' },
-    { id: 'park', name: 'Park', icon: 'leaf' },
-    { id: 'shopping', name: 'Shopping', icon: 'shopping-bag' },
-    { id: 'food', name: 'Food', icon: 'utensils' }
-  ];
+categories = [
+  { id: 'cultural', name: 'Cultural', icon: 'museum' },
+  { id: 'park', name: 'Park', icon: 'leaf' },
+  { id: 'food', name: 'Food', icon: 'restaurant' },
+  { id: 'shopping', name: 'Shopping', icon: 'cart' },
+  { id: 'education', name: 'Education', icon: 'school' },
+  { id: 'entertainment', name: 'Entertainment', icon: 'film' },
+  { id: 'scenic', name: 'Scenic', icon: 'image' }
+];
   
   
   // Selected categories
@@ -71,7 +73,7 @@ export class CreateRoutePage implements OnInit {
   this.isLoading = true;
 
   const preference = {
-    type: this.selectedCategories[0],
+    type: this.selectedCategories,
     duration: this.routeData.duration,
     startDate: this.routeData.startDate,
     endDate: this.routeData.endDate,
@@ -82,7 +84,6 @@ export class CreateRoutePage implements OnInit {
     next: (res) => {
       this.places = res.data;
       this.isLoading = false;
-      console.log('✅ Filtered places:', this.places);
     },
     error: (err) => {
       this.isLoading = false;
@@ -90,6 +91,8 @@ export class CreateRoutePage implements OnInit {
       this.showToast('Failed to load filtered places.');
     }
   });
+  
+
 }
 
   // Calendar related methods
@@ -272,9 +275,21 @@ export class CreateRoutePage implements OnInit {
     return this.routeData.places.some(p => p.id === place.id);
   }
 
- // In your create-route.page.ts
- async onSubmit() {
-  if (!this.validateRouteData()) return;
+async onSubmit() {
+  console.log('🚀 onSubmit tetiklendi:', {
+    places: this.routeData.places.map(p => ({ id: p.id, name: p.name }))
+  });
+
+  if (this.isLoading) {
+    console.log('⚠️ onSubmit zaten çalışıyor, tekrar engellendi');
+    return;
+  }
+  this.isLoading = true;
+
+  if (!this.validateRouteData()) {
+    this.isLoading = false;
+    return;
+  }
 
   const loading = await this.loadingController.create({
     message: 'Creating your route...',
@@ -282,29 +297,44 @@ export class CreateRoutePage implements OnInit {
   });
   await loading.present();
 
-  // User ID ekle
   this.routeData.userId = 1;
 
-  // Preference objesi hazırla
   const preference = new Preferences({
-    type: this.selectedCategories[0] || 'cultural',
+    type: Array.isArray(this.selectedCategories) && this.selectedCategories.length > 0
+      ? this.selectedCategories
+      : ['cultural'],
     duration: this.routeData.duration,
     startDate: this.routeData.startDate,
     endDate: this.routeData.endDate,
     userId: this.routeData.userId,
-    niceToHavePlaces: this.routeData.places  // bunu backend destekliyorsa
+    niceToHavePlaces: this.routeData.places,
+    startLat: 41.0370,
+    startLon: 28.9850
+  });
+
+  console.log('📤 Gönderilen preference:', {
+    niceToHavePlaces: preference.niceToHavePlaces.map(p => ({ id: p.id, name: p.name }))
   });
 
   try {
     const response = await this.preferencesService.getOptimizedRoutes(preference).toPromise();
     await loading.dismiss();
+    console.log('✅ Rota yanıtı:', response.data.routes);
 
-    console.log('✅ Rota başarıyla oluşturuldu:', response.data.routes);
-
-    // Yeni sayfaya yönlendirme
     this.router.navigate(['/content/route'], {
-      state: { routes: response.data.routes }
-    });
+    state: {
+      routes: response.data.routes,
+      startDate: this.routeData.startDate?.toISOString(),
+      endDate: this.routeData.endDate?.toISOString(),
+      duration: this.routeData.duration,
+      selectedCategories: this.selectedCategories,
+      mustVisitList: this.routeData.places,
+      startLocation: {
+        lat: 41.0370,
+        lon: 28.9850
+      }
+    }
+  });
 
     const toast = await this.toastController.create({
       message: 'Route created successfully!',
@@ -313,14 +343,15 @@ export class CreateRoutePage implements OnInit {
       color: 'success'
     });
     await toast.present();
-
   } catch (error) {
     await loading.dismiss();
-    console.error('❌ Rota oluşturulamadı:', error);
-    this.showToast('Route creation failed. Please try again.');
+    console.error('❌ Rota hatası:', (error as any).message, error);
+    const errorMessage = (error as { message: string }).message || 'Unknown error';
+    this.showToast(`Route creation failed: ${errorMessage}`);
+  } finally {
+    this.isLoading = false;
   }
 }
-
   
   // Validate route data
   validateRouteData(): boolean {
