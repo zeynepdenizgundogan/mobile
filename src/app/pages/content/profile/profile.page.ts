@@ -4,6 +4,9 @@ import { getAuth } from "firebase/auth";
 import { Router } from '@angular/router';
 import { LocationService } from '../../../services/location.service';
 import { signOut } from "firebase/auth";
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { updateProfile } from 'firebase/auth';
+
 
 @Component({
   selector: "app-profile",
@@ -70,10 +73,49 @@ export class ProfilePage implements OnInit {
   }
 
   // Profil fotoğrafını düzenleme
-  editProfilePicture() {
-    // TODO: Profil fotoğrafı düzenleme mantığı eklenecek
-    console.log("Edit profile picture clicked");
+async editProfilePicture() {
+  try {
+    // 📌 Dosya seçimi
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+
+    input.click();
+
+    input.onchange = async () => {
+      const file = input.files?.[0];
+      if (!file) return;
+
+      const auth = getAuth();
+      const user = auth.currentUser;
+
+      if (!user) {
+        this.presentAlert('User not found.');
+        return;
+      }
+
+      const storage = getStorage();
+      const storageRef = ref(storage, `profilePictures/${user.uid}`);
+
+      // 🔼 Yükleme
+      await uploadBytes(storageRef, file);
+      const downloadURL = await getDownloadURL(storageRef);
+
+      // 🔄 Kullanıcı profiline fotoğrafı ekle
+      await updateProfile(user, {
+        photoURL: downloadURL
+      });
+
+      // ⚡ Local user verisini güncelle
+      this.user.photoURL = downloadURL;
+      this.presentAlert('Profile picture updated successfully!');
+    };
+  } catch (err) {
+    console.error('Error uploading profile picture:', err);
+    this.presentAlert('Failed to update profile picture.');
   }
+}
+
 
   // Çıkış yapma
   async logOut() {

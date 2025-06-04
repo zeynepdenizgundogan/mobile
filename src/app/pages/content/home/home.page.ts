@@ -44,18 +44,18 @@ export class HomePage {
     this.loadSavedRoutes();
   }
 
-    loadSavedRoutes() {
-    this.http.get<any>('http://localhost:5001/api/routes/1') // 👈 userId = 1 örnek
-      .subscribe({
-        next: (res) => {
-          this.savedRoutes = res.routes;
-          console.log('📦 Kayıtlı rotalar:', this.savedRoutes);
-        },
-        error: (err) => {
-          console.error('❌ Rotalar yüklenemedi:', err);
-        }
-      });
-  }
+loadSavedRoutes() {
+  this.http.get<any>('http://localhost:5001/api/routes/all') // ✅ Tüm rotalar
+    .subscribe({
+      next: (res) => {
+        this.savedRoutes = res.routes;
+        console.log('📦 Tüm kullanıcıların rotaları:', this.savedRoutes);
+      },
+      error: (err) => {
+        console.error('❌ Rotalar yüklenemedi:', err);
+      }
+    });
+}
 
   goToRouteDetail(route: any) {
   this.navController.navigateForward('/content/route-view', {

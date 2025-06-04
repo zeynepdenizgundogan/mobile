@@ -18,7 +18,7 @@
   <ion-grid>
     <ion-row>
       <ion-col size="6" *ngFor="let trip of upcomingTrips">
-        <ion-card class="trip-card">
+        <ion-card class="itinerary-card" (click)="goToRouteDetail(trip)">
           <img [src]="trip.image_url || 'assets/images/placeholder.jpg'" />
           <ion-card-content>
             <h3>{{ trip.title }}</h3>
@@ -37,7 +37,7 @@
   <ion-grid>
     <ion-row>
       <ion-col size="6" *ngFor="let trip of pastTrips">
-        <ion-card class="trip-card">
+        <ion-card class="itinerary-card" (click)="goToRouteDetail(trip)">
           <img [src]="trip.image_url || 'assets/images/placeholder.jpg'" />
           <ion-card-content>
             <h3>{{ trip.title }}</h3>

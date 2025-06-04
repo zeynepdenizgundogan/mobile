@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { Route } from 'src/app/models/route.model';
+import { getAuth } from 'firebase/auth';
+
 
 
 declare var google: any; // Google Maps global objesi
@@ -12,6 +14,7 @@ declare var google: any; // Google Maps global objesi
   styleUrls: ['./route.page.scss'],
 })
 export class RoutePage implements OnInit {
+  
   routes: any[] = [];
   selectedDayIndex = 0;
   map: any;
@@ -149,6 +152,9 @@ export class RoutePage implements OnInit {
   }
 
 async goToHome() {
+  const user = getAuth().currentUser;
+  const userId = user?.uid;
+
   const allPlaces = this.routes
     .map((day: any) => day.route)
     .reduce((acc: any[], val: any[]) => acc.concat(val), []);
@@ -168,9 +174,8 @@ async goToHome() {
         category: p.category
       }))
     })),
-    userId: 1
+    userId: userId // ✅ gerçek UID burada
   };
-
 
   console.log('📦 Backend\'e gönderilen rota:', routePayload);
 
@@ -183,6 +188,7 @@ async goToHome() {
     alert('Rota kaydedilemedi. Lütfen tekrar deneyin.');
   }
 }
+
 
 
 

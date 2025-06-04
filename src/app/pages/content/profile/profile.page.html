@@ -4,7 +4,7 @@
     <!-- Profile Header -->
     <div class="profile-header">
       <div class="avatar">
-        <img [src]="user?.photoURL || 'assets/default-avatar.png'" alt="Profile Picture">
+        <ion-avatar> <img [src]="user?.photoURL || 'assets/default-avatar.png'" /> </ion-avatar>
         <button class="edit-btn" (click)="editProfilePicture()">
           <ion-icon name="camera"></ion-icon>
         </button>
