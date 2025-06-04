@@ -1,0 +1,94 @@
+.trips-content {
+  --background: #fff;
+  padding: 0 16px 60px;
+}
+
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 0 10px;
+
+  h2 {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0;
+  }
+
+  .avatar {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  background: #f2f2f2;
+  border-radius: 20px;
+  padding: 8px 12px;
+  margin-bottom: 20px;
+
+  ion-icon {
+    color: #999;
+    margin-right: 8px;
+  }
+
+  input {
+    border: none;
+    background: transparent;
+    flex-grow: 1;
+    font-size: 15px;
+    color: #111;
+  }
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 16px 0 12px;
+  padding-left: 4px;
+text-align: center;
+  color: #1a237e; 
+}
+
+.trip-card {
+  height: 240px; 
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+
+  img {
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
+  }
+
+  ion-card-content {
+    flex-grow: 1;
+    padding: 10px;
+
+    h3 {
+      font-size: 14px;
+      font-weight: 600;
+      margin: 0 0 4px;
+      color: #222;
+    }
+
+    .info-row {
+      display: flex;
+      align-items: center;
+      font-size: 13px;
+      color: #666;
+
+      ion-icon {
+        margin-right: 6px;
+      }
+    }
+  }
+}
+
+.bottom-padding {
+  height: 60px;
+}

@@ -137,8 +137,14 @@
       <p>Selected: {{ routeData.places.length }}</p>
     </div>
     
-    <ion-button expand="block" (click)="onSubmit()" class="submit-button" [disabled]="routeData.places.length === 0">
-      Create Route
-    </ion-button>
   </div>
+
+  <div *ngIf="currentStep === 3" class="fixed-submit-button">
+  <ion-button expand="block"
+              (click)="onSubmit()"
+              class="submit-button"
+              [disabled]="routeData.places.length === 0">
+    Create Route
+  </ion-button>
+</div>
 </ion-content>

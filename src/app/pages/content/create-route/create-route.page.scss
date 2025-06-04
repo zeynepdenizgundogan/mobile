@@ -295,9 +295,21 @@ ion-content {
     font-size: 14px;
   }
 
-  .submit-button {
-    --background: #0891b2;
-    --border-radius: 8px;
-    margin-top: 20px;
-  }
+  .fixed-submit-button {
+  position: fixed;
+  bottom: 75px; 
+  left: 0;
+  right: 0;
+  padding: 0 16px;
+  z-index: 999;
 }
+
+.submit-button {
+  --background: #0891b2;
+  --border-radius: 8px;
+}
+
+
+
+}
+

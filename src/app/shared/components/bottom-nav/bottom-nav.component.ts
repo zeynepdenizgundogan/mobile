@@ -9,9 +9,11 @@ import { Router } from '@angular/router';
 export class BottomNavComponent {
   constructor(private router: Router) {}
 
-  isActive(route: string): boolean {
-    return this.router.url.includes(route);
-  }
+ isActive(route: string): boolean {
+  const current = this.router.url.replace('/content/', '').split('?')[0];
+  return current === route.replace('/', '');
+}
+
 
   navigate(route: string): void {
     const cleanedRoute = route.startsWith('/') ? route.slice(1) : route;

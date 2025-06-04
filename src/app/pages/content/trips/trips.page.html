@@ -1,13 +1,55 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>trips</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content class="trips-content" fullscreen>
+  <!-- Header -->
+  <div class="header-row">
+    <h2>Your Trips</h2>
+    <ion-avatar class="avatar">
+      <img [src]="user?.photoURL || 'assets/default-avatar.png'" />
+    </ion-avatar>
+  </div>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">trips</ion-title>
-    </ion-toolbar>
-  </ion-header>
+  <!-- Search -->
+  <div class="search-bar">
+    <ion-icon name="search-outline"></ion-icon>
+    <input type="text" placeholder="Search" [(ngModel)]="searchTerm" />
+  </div>
+
+  <!-- Upcoming -->
+  <div class="section-title">Your Upcoming Trips</div>
+  <ion-grid>
+    <ion-row>
+      <ion-col size="6" *ngFor="let trip of upcomingTrips">
+        <ion-card class="trip-card">
+          <img [src]="trip.image_url || 'assets/images/placeholder.jpg'" />
+          <ion-card-content>
+            <h3>{{ trip.title }}</h3>
+            <div class="info-row">
+              <ion-icon name="location-outline"></ion-icon>
+              <span>{{ trip.startPlace?.name }}</span>
+            </div>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+  <!-- Past -->
+  <div class="section-title">Your Past Trips</div>
+  <ion-grid>
+    <ion-row>
+      <ion-col size="6" *ngFor="let trip of pastTrips">
+        <ion-card class="trip-card">
+          <img [src]="trip.image_url || 'assets/images/placeholder.jpg'" />
+          <ion-card-content>
+            <h3>{{ trip.title }}</h3>
+            <div class="info-row">
+              <ion-icon name="location-outline"></ion-icon>
+              <span>{{ trip.startPlace?.name }}</span>
+            </div>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+  <div class="bottom-padding"></div>
 </ion-content>
