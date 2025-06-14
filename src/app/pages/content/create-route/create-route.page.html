@@ -11,8 +11,31 @@
     <div class="header-spacer"></div>
   </div>
 
-  <!-- Step 1: Date Selection -->
+  <!-- Step 1: Starting Point Selection -->
   <div *ngIf="currentStep === 1" class="step-container">
+    <h2 class="text-center">Choose Starting Point</h2>
+    <p class="text-center subtitle">Select your starting location on the map</p>
+    
+    <div class="map-container">
+      <ion-card>
+        <ion-card-content class="map-card-content">
+          <div id="map" class="map-display"></div>
+        </ion-card-content>
+      </ion-card>
+    </div>
+
+    <div class="location-display" *ngIf="routeData.startLocation">
+      <ion-icon name="location-outline"></ion-icon>
+      <span>{{ getLocationName() }}</span>
+    </div>
+
+    <ion-button expand="block" (click)="nextStep()" class="next-button" [disabled]="!routeData.startLocation">
+      Next
+    </ion-button>
+  </div>
+
+  <!-- Step 2: Date Selection -->
+  <div *ngIf="currentStep === 2" class="step-container">
     <h2 class="text-center">Choose Your Dates</h2>
     
     <div class="calendar-container">
@@ -87,8 +110,8 @@
     </ion-button>
   </div>
 
-  <!-- Step 2: Category Selection -->
-  <div *ngIf="currentStep === 2" class="step-container">
+  <!-- Step 3: Category Selection -->
+  <div *ngIf="currentStep === 3" class="step-container">
     <h2 class="text-center">Choose Categories</h2>
     
     <div class="categories-container">
@@ -111,8 +134,8 @@
     </ion-button>
   </div>
   
-  <!-- Step 3: Place Selection -->
-  <div *ngIf="currentStep === 3" class="step-container">
+  <!-- Step 4: Place Selection -->
+  <div *ngIf="currentStep === 4" class="step-container">
     <h2 class="text-center">Choose Places</h2>
     
     <div *ngIf="isLoading" class="loading-container">
@@ -139,12 +162,12 @@
     
   </div>
 
-  <div *ngIf="currentStep === 3" class="fixed-submit-button">
-  <ion-button expand="block"
-              (click)="onSubmit()"
-              class="submit-button"
-              [disabled]="routeData.places.length === 0">
-    Create Route
-  </ion-button>
-</div>
+  <div *ngIf="currentStep === 4" class="fixed-submit-button">
+    <ion-button expand="block"
+                (click)="onSubmit()"
+                class="submit-button"
+                [disabled]="routeData.places.length === 0">
+      Create Route
+    </ion-button>
+  </div>
 </ion-content>

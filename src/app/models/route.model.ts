@@ -1,5 +1,11 @@
 import { Place } from './place.model';
 
+export interface StartLocation {
+  lat: number;
+  lon: number;
+  name?: string;
+}
+
 export class Route {
   id?: number;
   startPlace: Place | null;
@@ -8,6 +14,7 @@ export class Route {
   endDate: Date | null;
   places: Place[];
   userId?: number; // Reference to the user who created this route
+  startLocation?: StartLocation; // Optional start location for the route
   
   constructor(data: Partial<Route> = {}) {
     this.id = data.id;
@@ -17,6 +24,7 @@ export class Route {
     this.endDate = data.endDate || null;
     this.places = data.places || [];
     this.userId = data.userId;
+    this.startLocation = data.startLocation || undefined; // Optional start location
   }
   
   createRoute(): void {

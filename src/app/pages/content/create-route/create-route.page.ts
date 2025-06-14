@@ -1,5 +1,5 @@
 // src/app/pages/create-route/create-route.page.ts
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { LoadingController, ToastController } from '@ionic/angular';
 import { RouteService } from '../../../services/route.service';
@@ -7,93 +7,166 @@ import { Route } from '../../../models/route.model';
 import { Place } from '../../../models/place.model';
 import { Preferences } from '../../../models/preferences.model';
 import { PreferencesService } from '../../../services/preferences.service';
-
+import { NgZone } from '@angular/core';
 
 @Component({
   selector: 'app-create-route',
   templateUrl: './create-route.page.html',
   styleUrls: ['./create-route.page.scss'],
 })
-export class CreateRoutePage implements OnInit {
+export class CreateRoutePage implements OnInit, OnDestroy, AfterViewInit {
   currentStep = 1;
-  totalSteps = 3;
-  
-  // Calendar related properties
+  totalSteps = 4;
+  private map: any;
+  private marker: any;
   currentMonth: Date = new Date();
   calendarDays: (Date | null)[] = [];
   weekdays: string[] = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
-  
-  // Days with cloud icons (for demonstration)
   daysWithClouds: number[] = [2, 7, 8, 15, 21, 22, 23, 26, 27];
-  
-  // Use the Route model
   routeData: Route = new Route();
-  
-  // Categories for selection
-categories = [
-  { id: 'cultural', name: 'Cultural', icon: 'museum' },
-  { id: 'park', name: 'Park', icon: 'leaf' },
-  { id: 'food', name: 'Food', icon: 'restaurant' },
-  { id: 'shopping', name: 'Shopping', icon: 'cart' },
-  { id: 'education', name: 'Education', icon: 'school' },
-  { id: 'entertainment', name: 'Entertainment', icon: 'film' },
-  { id: 'scenic', name: 'Scenic', icon: 'image' }
-];
-  
-  
-  // Selected categories
+  categories = [
+    { id: 'cultural', name: 'Cultural', icon: 'museum' },
+    { id: 'park', name: 'Park', icon: 'leaf' },
+    { id: 'food', name: 'Food', icon: 'restaurant' },
+    { id: 'shopping', name: 'Shopping', icon: 'cart' },
+    { id: 'education', name: 'Education', icon: 'school' },
+    { id: 'entertainment', name: 'Entertainment', icon: 'film' },
+    { id: 'scenic', name: 'Scenic', icon: 'image' }
+  ];
   selectedCategories: string[] = [];
-
-  // Places for selection (will be loaded from API)
   places: Place[] = [];
-  
-  // Loading state
   isLoading = false;
 
-  constructor(
+    constructor(
     private router: Router,
     private routeService: RouteService,
     private loadingController: LoadingController,
     private toastController: ToastController,
-    private preferencesService: PreferencesService
-  ) {}
+    private preferencesService: PreferencesService,
+    private ngZone: NgZone
+  ) {
+    this.routeData.startLocation = {
+      lat:  41.0370, 
+      lon: 28.9850,
+      name: 'Taksim, Istanbul'
+    };
+  }
 
   ngOnInit() {
     this.generateCalendarDays();
-   
-  }
-  
- // In your create-route.page.ts
- loadFilteredPlaces() {
-  if (!this.routeData.startDate || !this.routeData.endDate || this.selectedCategories.length === 0) {
-    this.showToast('Please select a date range and at least one category');
-    return;
   }
 
-  this.isLoading = true;
+  ngAfterViewInit() {
+    if (this.currentStep === 1) {
+      this.loadGoogleMapsScript().then(() => {
+        this.initializeGoogleMap();
+      });
+    }
+  }
 
-  const preference = {
-    type: this.selectedCategories,
-    duration: this.routeData.duration,
-    startDate: this.routeData.startDate,
-    endDate: this.routeData.endDate,
-    userId: this.routeData.userId
-  };
+  ngOnDestroy() {
+    this.map = null;
+  }
 
-  this.routeService.getFilteredPlaces(preference).subscribe({
-    next: (res) => {
-      this.places = res.data;
-      this.isLoading = false;
-    },
-    error: (err) => {
-      this.isLoading = false;
-      console.error('❌ Error loading filtered places:', err);
-      this.showToast('Failed to load filtered places.');
+  loadGoogleMapsScript(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      if ((window as any).google && (window as any).google.maps) {
+        resolve();
+        return;
+      }
+      const script = document.createElement('script');
+      script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyAUlrmPWdiKEozVKZE4K8T7PnMuU9j5WXI';
+      script.async = true;
+      script.defer = true;
+      script.onload = () => resolve();
+      script.onerror = () => reject('Google Maps script yüklenemedi');
+      document.body.appendChild(script);
+    });
+  }
+
+  initializeGoogleMap() {
+    const startLat = this.routeData.startLocation?.lat || 41.9028;
+    const startLon = this.routeData.startLocation?.lon || 12.4964;
+    const mapEl = document.getElementById('map');
+    if (!mapEl) return;
+
+    this.map = new google.maps.Map(mapEl, {
+      center: { lat: startLat, lng: startLon },
+      zoom: 13,
+    });
+
+    this.marker = new google.maps.Marker({
+      position: { lat: startLat, lng: startLon },
+      map: this.map,
+      title: 'Starting Location',
+      icon: {
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: 8,
+        fillColor: '#007bff',
+        fillOpacity: 1,
+        strokeWeight: 2,
+        strokeColor: 'white'
+      }
+    });
+
+    this.map.addListener('click', (event: any) => {
+      this.updateStartLocation(event.latLng.lat(), event.latLng.lng());
+    });
+  }
+
+  updateStartLocation(lat: number, lng: number) {
+  this.routeData.startLocation = { lat, lon: lng };
+
+  if (this.marker) this.marker.setMap(null);
+
+  this.marker = new google.maps.Marker({
+    position: { lat, lng },
+    map: this.map,
+    title: 'Selected Start Location',
+    icon: {
+      path: google.maps.SymbolPath.CIRCLE,
+      scale: 8,
+      fillColor: '#007bff',
+      fillOpacity: 1,
+      strokeWeight: 2,
+      strokeColor: 'white'
     }
   });
-  
 
+  this.map.setCenter({ lat, lng });
+
+  // 🧠 Eklenen reverse geocode işlemi
+this.reverseGeocode(lat, lng).then(name => {
+  this.ngZone.run(() => {
+    this.routeData.startLocation!.name = name;
+  });
+}).catch(() => {
+  this.ngZone.run(() => {
+    this.routeData.startLocation!.name = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+  });
+});
 }
+  reverseGeocode(lat: number, lng: number): Promise<string> {
+    return new Promise((resolve, reject) => {
+      if (!(window as any).google || !(window as any).google.maps) {
+        reject('Google Maps API not loaded');
+        return;
+      }
+      const geocoder = new google.maps.Geocoder();
+      geocoder.geocode({ location: { lat, lng } }, (results: any, status: any) => {
+        if (status === 'OK' && results && results[0]) {
+          resolve(results[0].formatted_address);
+        } else {
+          reject('No address found');
+        }
+      });
+    });
+  }
+
+
+  getLocationName(): string {
+    return this.routeData.startLocation?.name || 'Select a location';
+  }
 
   // Calendar related methods
   generateCalendarDays() {
@@ -175,7 +248,7 @@ categories = [
     
     return checkDate === startDate;
   }
-  
+
   isEndDate(date: Date): boolean {
     if (!this.routeData.endDate) return false;
     
@@ -212,8 +285,15 @@ categories = [
     if (this.currentStep < this.totalSteps) {
       this.currentStep++;
       
-      // If moving to step 3, load places based on selected categories
-      if (this.currentStep === 3) {
+      // Initialize map when entering step 1
+      if (this.currentStep === 1) {
+        setTimeout(() => {
+          this.initializeGoogleMap();
+        }, 300);
+      }
+      
+      // If moving to step 4, load places based on selected categories
+      if (this.currentStep === 4) {
         this.loadFilteredPlaces();
       }
     }
@@ -256,10 +336,39 @@ categories = [
       month: 'short', 
       day: '2-digit' 
     };
-    
     return new Date(dateObj).toLocaleDateString('en-US', options);
   }
-  
+
+  // Load filtered places method
+  loadFilteredPlaces() {
+    if (!this.routeData.startDate || !this.routeData.endDate || this.selectedCategories.length === 0) {
+      this.showToast('Please select a date range and at least one category');
+      return;
+    }
+
+    this.isLoading = true;
+
+    const preference = {
+      type: this.selectedCategories,
+      duration: this.routeData.duration,
+      startDate: this.routeData.startDate,
+      endDate: this.routeData.endDate,
+      userId: this.routeData.userId
+    };
+
+    this.routeService.getFilteredPlaces(preference).subscribe({
+      next: (res) => {
+        this.places = res.data;
+        this.isLoading = false;
+      },
+      error: (err) => {
+        this.isLoading = false;
+        console.error('❌ Error loading filtered places:', err);
+        this.showToast('Failed to load filtered places.');
+      }
+    });
+  }
+
   // Place selection
   togglePlace(place: Place) {
     const index = this.routeData.places.findIndex(p => p.id === place.id);
@@ -275,86 +384,93 @@ categories = [
     return this.routeData.places.some(p => p.id === place.id);
   }
 
-async onSubmit() {
-  console.log('🚀 onSubmit tetiklendi:', {
-    places: this.routeData.places.map(p => ({ id: p.id, name: p.name }))
-  });
-
-  if (this.isLoading) {
-    console.log('⚠️ onSubmit zaten çalışıyor, tekrar engellendi');
-    return;
-  }
-  this.isLoading = true;
-
-  if (!this.validateRouteData()) {
-    this.isLoading = false;
-    return;
-  }
-
-  const loading = await this.loadingController.create({
-    message: 'Creating your route...',
-    spinner: 'circles'
-  });
-  await loading.present();
-
-  this.routeData.userId = 1;
-
-  const preference = new Preferences({
-    type: Array.isArray(this.selectedCategories) && this.selectedCategories.length > 0
-      ? this.selectedCategories
-      : ['cultural'],
-    duration: this.routeData.duration,
-    startDate: this.routeData.startDate,
-    endDate: this.routeData.endDate,
-    userId: this.routeData.userId,
-    niceToHavePlaces: this.routeData.places,
-    startLat: 41.0370,
-    startLon: 28.9850
-  });
-
-  console.log('📤 Gönderilen preference:', {
-    niceToHavePlaces: preference.niceToHavePlaces.map(p => ({ id: p.id, name: p.name }))
-  });
-
-  try {
-    const response = await this.preferencesService.getOptimizedRoutes(preference).toPromise();
-    await loading.dismiss();
-    console.log('✅ Rota yanıtı:', response.data.routes);
-
-    this.router.navigate(['/content/route'], {
-    state: {
-      routes: response.data.routes,
-      startDate: this.routeData.startDate?.toISOString(),
-      endDate: this.routeData.endDate?.toISOString(),
-      duration: this.routeData.duration,
-      selectedCategories: this.selectedCategories,
-      mustVisitList: this.routeData.places,
-      startLocation: {
-        lat: 41.0370,
-        lon: 28.9850
-      }
-    }
-  });
-
-    const toast = await this.toastController.create({
-      message: 'Route created successfully!',
-      duration: 2000,
-      position: 'bottom',
-      color: 'success'
+  async onSubmit() {
+    console.log('🚀 onSubmit tetiklendi:', {
+      places: this.routeData.places.map(p => ({ id: p.id, name: p.name }))
     });
-    await toast.present();
-  } catch (error) {
-    await loading.dismiss();
-    console.error('❌ Rota hatası:', (error as any).message, error);
-    const errorMessage = (error as { message: string }).message || 'Unknown error';
-    this.showToast(`Route creation failed: ${errorMessage}`);
-  } finally {
-    this.isLoading = false;
+
+    if (this.isLoading) {
+      console.log('⚠️ onSubmit zaten çalışıyor, tekrar engellendi');
+      return;
+    }
+    this.isLoading = true;
+
+    if (!this.validateRouteData()) {
+      this.isLoading = false;
+      return;
+    }
+
+    const loading = await this.loadingController.create({
+      message: 'Creating your route...',
+      spinner: 'circles'
+    });
+    await loading.present();
+
+    this.routeData.userId = 1;
+
+    const preference = new Preferences({
+      type: Array.isArray(this.selectedCategories) && this.selectedCategories.length > 0
+        ? this.selectedCategories
+        : ['cultural'],
+      duration: this.routeData.duration,
+      startDate: this.routeData.startDate,
+      endDate: this.routeData.endDate,
+      userId: this.routeData.userId,
+      niceToHavePlaces: this.routeData.places,
+      startLat: this.routeData.startLocation?.lat || 41.0370,
+      startLon: this.routeData.startLocation?.lon || 28.9850
+    });
+
+    console.log('📤 Gönderilen preference:', {
+      niceToHavePlaces: preference.niceToHavePlaces.map(p => ({ id: p.id, name: p.name })),
+      startLat: preference.startLat,
+      startLon: preference.startLon
+    });
+
+    try {
+      const response = await this.preferencesService.getOptimizedRoutes(preference).toPromise();
+      await loading.dismiss();
+      console.log('✅ Rota yanıtı:', response.data.routes);
+
+      this.router.navigate(['/content/route'], {
+        state: {
+          routes: response.data.routes,
+          startDate: this.routeData.startDate?.toISOString(),
+          endDate: this.routeData.endDate?.toISOString(),
+          duration: this.routeData.duration,
+          selectedCategories: this.selectedCategories,
+          mustVisitList: this.routeData.places,
+          startLocation: {
+            lat: this.routeData.startLocation?.lat || 41.0370,
+            lon: this.routeData.startLocation?.lon || 28.9850
+          }
+        }
+      });
+
+      const toast = await this.toastController.create({
+        message: 'Route created successfully!',
+        duration: 2000,
+        position: 'bottom',
+        color: 'success'
+      });
+      await toast.present();
+    } catch (error) {
+      await loading.dismiss();
+      console.error('❌ Rota hatası:', (error as any).message, error);
+      const errorMessage = (error as { message: string }).message || 'Unknown error';
+      this.showToast(`Route creation failed: ${errorMessage}`);
+    } finally {
+      this.isLoading = false;
+    }
   }
-}
   
   // Validate route data
   validateRouteData(): boolean {
+    if (!this.routeData.startLocation) {
+      this.showToast('Please select a starting location');
+      return false;
+    }
+    
     if (!this.routeData.startDate || !this.routeData.endDate) {
       this.showToast('Please select both start and end dates');
       return false;

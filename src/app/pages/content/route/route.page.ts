@@ -39,9 +39,15 @@ export class RoutePage implements OnInit {
     this.mustVisitList = state.mustVisitList;
   }
 
-  if (state?.startLocation) {
-    this.startLocation = state.startLocation;
-  }
+if (state?.startLocation) {
+  const s = state.startLocation;
+  this.startLocation = {
+    latitude: s.latitude ?? s.lat,
+    longitude: s.longitude ?? s.lon,
+    name: s.name
+  };
+  console.log('📍 Start Location geldi:', this.startLocation);
+}
 
   if (state?.routes) {
     this.routes = state.routes;
@@ -67,7 +73,7 @@ export class RoutePage implements OnInit {
   }
 
   loadMap() {
-    const center = { lat: 41.0082, lng: 28.9784 }; // Default: İstanbul merkezi
+    const center = { lat: 41.0370, lng: 28.9850 }; // Default: İstanbul merkezi
     const mapEl = document.getElementById('map');
 
     if (!mapEl) {
@@ -134,6 +140,33 @@ export class RoutePage implements OnInit {
       bounds.extend(position);
     });
 
+    // Start location marker (mavi nokta)
+if (this.startLocation && this.startLocation.latitude && this.startLocation.longitude) {
+  const startPosition = {
+    lat: this.startLocation.latitude,
+    lng: this.startLocation.longitude,
+  };
+  console.log('Start Location:', this.startLocation.latitude, this.startLocation.longitude);
+const startMarker = new google.maps.Marker({
+  position: startPosition,
+  map: this.map,
+  icon: {
+    path: google.maps.SymbolPath.CIRCLE,
+    scale: 10,
+    fillColor: "#007bff",
+    fillOpacity: 1,
+    strokeWeight: 2,
+    strokeColor: "white",
+  },
+  zIndex: 999,
+  title: "Start Location",
+});
+
+
+  this.markers.push(startMarker);
+  bounds.extend(startPosition);
+}
+
     // Tüm markerları kapsayacak şekilde haritayı yeniden merkezle
     if (!bounds.isEmpty()) {
       this.map.fitBounds(bounds);
@@ -171,7 +204,9 @@ async goToHome() {
         name: p.name,
         latitude: p.latitude,
         longitude: p.longitude,
-        category: p.category
+        category: p.category,
+        startTime: p.startTime,   // <- ekle
+        endTime: p.endTime        // <- ekle
       }))
     })),
     userId: userId // ✅ gerçek UID burada
