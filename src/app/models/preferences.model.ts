@@ -10,6 +10,7 @@ export class Preferences {
   niceToHavePlaces: Place[];
   startLat: number;
   startLon: number;
+  city?: string; 
 
   constructor(data: Partial<Preferences> = {}) {
     this.id = data.id;
@@ -25,5 +26,6 @@ export class Preferences {
     this.niceToHavePlaces = data.niceToHavePlaces || [];
     this.startLat = data.startLat || 0;
     this.startLon = data.startLon || 0;
+    this.city = data.city || 'istanbul';
   }
 }

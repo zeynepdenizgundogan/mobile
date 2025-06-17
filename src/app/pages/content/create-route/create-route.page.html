@@ -11,6 +11,28 @@
     <div class="header-spacer"></div>
   </div>
 
+  <!-- Step 0: City Selection -->
+<div *ngIf="currentStep === 0" class="step-container">
+  <h2 class="text-center">Choose a City</h2>
+  <div class="city-buttons" style="display: flex; gap: 12px; justify-content: center;">
+    <ion-button
+      expand="block"
+      fill="{{ routeData.city === 'Istanbul' ? 'solid' : 'outline' }}"
+      (click)="selectCity('Istanbul')">
+      Istanbul
+    </ion-button>
+    <ion-button
+      expand="block"
+      fill="{{ routeData.city === 'Rome' ? 'solid' : 'outline' }}"
+      (click)="selectCity('Rome')">
+      Rome
+    </ion-button>
+  </div>
+  <ion-button expand="block" class="next-button" (click)="nextStep()" [disabled]="!routeData.city">
+    Next
+  </ion-button>
+</div>
+
   <!-- Step 1: Starting Point Selection -->
   <div *ngIf="currentStep === 1" class="step-container">
     <h2 class="text-center">Choose Starting Point</h2>

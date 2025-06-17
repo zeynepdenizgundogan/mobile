@@ -1,5 +1,5 @@
 // src/app/pages/create-route/create-route.page.ts
-import { Component, OnInit, OnDestroy, AfterViewInit } from '@angular/core';
+import { Component, OnInit, OnDestroy} from '@angular/core';
 import { Router } from '@angular/router';
 import { LoadingController, ToastController } from '@ionic/angular';
 import { RouteService } from '../../../services/route.service';
@@ -14,8 +14,8 @@ import { NgZone } from '@angular/core';
   templateUrl: './create-route.page.html',
   styleUrls: ['./create-route.page.scss'],
 })
-export class CreateRoutePage implements OnInit, OnDestroy, AfterViewInit {
-  currentStep = 1;
+export class CreateRoutePage implements OnInit, OnDestroy {
+  currentStep = 0;
   totalSteps = 4;
   private map: any;
   private marker: any;
@@ -29,7 +29,6 @@ export class CreateRoutePage implements OnInit, OnDestroy, AfterViewInit {
     { id: 'park', name: 'Park', icon: 'leaf' },
     { id: 'food', name: 'Food', icon: 'restaurant' },
     { id: 'shopping', name: 'Shopping', icon: 'cart' },
-    { id: 'education', name: 'Education', icon: 'school' },
     { id: 'entertainment', name: 'Entertainment', icon: 'film' },
     { id: 'scenic', name: 'Scenic', icon: 'image' }
   ];
@@ -56,17 +55,28 @@ export class CreateRoutePage implements OnInit, OnDestroy, AfterViewInit {
     this.generateCalendarDays();
   }
 
-  ngAfterViewInit() {
-    if (this.currentStep === 1) {
-      this.loadGoogleMapsScript().then(() => {
-        this.initializeGoogleMap();
-      });
-    }
-  }
 
   ngOnDestroy() {
     this.map = null;
   }
+
+selectCity(cityName: string) {
+  this.routeData.city = cityName;
+
+  if (cityName.toLowerCase() === 'istanbul') {
+    this.routeData.startLocation = {
+      lat: 41.0370,
+      lon: 28.9850,
+      name: 'Taksim, Istanbul'
+    };
+  } else if (cityName.toLowerCase() === 'rome') {
+    this.routeData.startLocation = {
+      lat: 41.9028,
+      lon: 12.4964,
+      name: 'Piazza Venezia, Rome'
+    };
+  }
+}
 
   loadGoogleMapsScript(): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -281,23 +291,26 @@ this.reverseGeocode(lat, lng).then(name => {
   }
 
   // Navigation between steps
-  nextStep() {
-    if (this.currentStep < this.totalSteps) {
-      this.currentStep++;
-      
-      // Initialize map when entering step 1
-      if (this.currentStep === 1) {
-        setTimeout(() => {
-          this.initializeGoogleMap();
-        }, 300);
-      }
-      
-      // If moving to step 4, load places based on selected categories
-      if (this.currentStep === 4) {
-        this.loadFilteredPlaces();
-      }
+nextStep() {
+  if (this.currentStep < this.totalSteps) {
+    this.currentStep++;
+
+    // 🧠 Harita step 1'de yüklensin, script de dahil
+    if (this.currentStep === 1) {
+      this.loadGoogleMapsScript()
+        .then(() => {
+          setTimeout(() => this.initializeGoogleMap(), 300); // Harita container DOM'a gelsin
+        })
+        .catch((err) => {
+          console.error('❌ Google Maps yüklenemedi:', err);
+        });
+    }
+
+    if (this.currentStep === 4) {
+      this.loadFilteredPlaces();
     }
   }
+}
 
   previousStep() {
     if (this.currentStep > 1) {
@@ -353,7 +366,8 @@ this.reverseGeocode(lat, lng).then(name => {
       duration: this.routeData.duration,
       startDate: this.routeData.startDate,
       endDate: this.routeData.endDate,
-      userId: this.routeData.userId
+      userId: this.routeData.userId,
+      city: this.routeData.city || 'istanbul',
     };
 
     this.routeService.getFilteredPlaces(preference).subscribe({
@@ -418,7 +432,8 @@ this.reverseGeocode(lat, lng).then(name => {
       userId: this.routeData.userId,
       niceToHavePlaces: this.routeData.places,
       startLat: this.routeData.startLocation?.lat || 41.0370,
-      startLon: this.routeData.startLocation?.lon || 28.9850
+      startLon: this.routeData.startLocation?.lon || 28.9850,
+      city: this.routeData.city
     });
 
     console.log('📤 Gönderilen preference:', {

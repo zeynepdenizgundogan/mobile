@@ -347,6 +347,32 @@ ion-content {
     color: var(--ion-color-dark);
   }
 }
+.city-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 16px;
+
+  ion-button {
+    flex: 1;
+    max-width: 140px;
+    --border-radius: 8px;
+    --background: white;
+    --color: #0891b2;
+    --border-color: #0891b2;
+    border: 1px solid #0891b2;
+
+    &.button-solid {
+      --background: #0891b2;
+      --color: white;
+    }
+
+    &:hover {
+      filter: brightness(1.05);
+    }
+  }
+}
+
 
 // Custom Leaflet marker styles - yeni ekleme
 .custom-marker {

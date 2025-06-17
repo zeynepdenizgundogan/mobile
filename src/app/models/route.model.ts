@@ -14,7 +14,8 @@ export class Route {
   endDate: Date | null;
   places: Place[];
   userId?: number; // Reference to the user who created this route
-  startLocation?: StartLocation; // Optional start location for the route
+  startLocation?: StartLocation; // Optional start location for the route,
+  city?: string; // Optional city for the route
   
   constructor(data: Partial<Route> = {}) {
     this.id = data.id;
@@ -25,6 +26,7 @@ export class Route {
     this.places = data.places || [];
     this.userId = data.userId;
     this.startLocation = data.startLocation || undefined; // Optional start location
+    this.city = data.city || 'istanbul'; // Default city
   }
   
   createRoute(): void {
