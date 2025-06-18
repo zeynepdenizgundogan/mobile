@@ -28,6 +28,7 @@ export class CreateRoutePage implements OnInit, OnDestroy {
     { id: 'cultural', name: 'Cultural', icon: 'museum' },
     { id: 'park', name: 'Park', icon: 'leaf' },
     { id: 'food', name: 'Food', icon: 'restaurant' },
+    { id: 'education', name: 'Education', icon: 'education' },
     { id: 'shopping', name: 'Shopping', icon: 'cart' },
     { id: 'entertainment', name: 'Entertainment', icon: 'film' },
     { id: 'scenic', name: 'Scenic', icon: 'image' }
