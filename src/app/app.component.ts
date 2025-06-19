@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { initializeApp } from 'firebase/app';
+import { environment } from '../environments/environment.prod';
 
 @Component({
   selector: 'app-root',
@@ -6,5 +8,7 @@ import { Component } from '@angular/core';
   styleUrls: ['app.component.scss'],
 })
 export class AppComponent {
-  constructor() {}
+  constructor() {
+    initializeApp(environment.firebaseConfig);
+  }
 }

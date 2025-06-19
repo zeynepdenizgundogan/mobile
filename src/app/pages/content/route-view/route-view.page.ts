@@ -73,7 +73,7 @@ ngOnInit() {
 
       const script = document.createElement('script');
       script.src =
-        'https://maps.googleapis.com/maps/api/js?key=AIzaSyAUlrmPWdiKEozVKZE4K8T7PnMuU9j5WXI';
+        'https://maps.googleapis.com/maps/api/js?key=AIzaSyCRheeW5QYpoaoK3WuSUQBZ4JqVEN1kGlk';
       script.async = true;
       script.defer = true;
 

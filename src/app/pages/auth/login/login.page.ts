@@ -14,10 +14,10 @@ import { environment } from "src/environments/environment.prod";
 })
 export class LoginPage{
   // Initialize Firebase
-  oApp = initializeApp(environment.firebaseConfig);
+ //oApp = initializeApp(environment.firebaseConfig);
 
   // Initialize Firebase Authentication and get a reference to the service
-  oAuth = getAuth(this.oApp);
+  //oAuth = getAuth(this.oApp);
 
   email: string = "";
   password: string = "";
@@ -35,7 +35,8 @@ export class LoginPage{
   }
 
   async onLogin() {
-    signInWithEmailAndPassword(this.oAuth, this.email, this.password)
+    const auth = getAuth();
+    signInWithEmailAndPassword(auth, this.email, this.password)
     .then((userCredential) => {
         const user = userCredential.user;
         if (user.uid !== undefined && user.uid !== '') {

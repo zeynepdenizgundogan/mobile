@@ -14,7 +14,7 @@ import { HttpClient } from '@angular/common/http';
 })
 export class HomePage {
   // Tanımlamanız gereken popularItems dizisi
-  public savedRoutes: any[] = [];
+  public sharedRoutes: any[] = [];
   user: any = null;
   locationCountry: string = "";  // Konum bilgisi için bir değişken
   locationCity: string = "";  // Konum bilgisi için bir değişken
@@ -41,21 +41,22 @@ export class HomePage {
 
     const auth = getAuth();
     this.user = auth.currentUser;
-    this.loadSavedRoutes();
+    this.loadSharedRoutes();
   }
-
-loadSavedRoutes() {
-  this.http.get<any>('http://localhost:5001/api/routes/all') // ✅ Tüm rotalar
-    .subscribe({
-      next: (res) => {
-        this.savedRoutes = res.routes;
-        console.log('📦 Tüm kullanıcıların rotaları:', this.savedRoutes);
-      },
-      error: (err) => {
-        console.error('❌ Rotalar yüklenemedi:', err);
-      }
-    });
+loadSharedRoutes() {
+  this.http.get<any>('http://localhost:5001/api/routes?isShared=true').subscribe({
+    next: (res) => {
+      this.sharedRoutes = res.routes;
+      console.log('✅ Paylaşılan rotalar:', this.sharedRoutes);
+    },
+    error: (err) => {
+      console.error('❌ Paylaşılan rotalar alınamadı:', err);
+    }
+  });
 }
+
+
+
 
   goToRouteDetail(route: any) {
   this.navController.navigateForward('/content/route-view', {

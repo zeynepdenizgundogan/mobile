@@ -186,7 +186,7 @@ const startMarker = new google.maps.Marker({
 
 async goToHome() {
   const user = getAuth().currentUser;
-  const userId = user?.uid;
+  const userId = user?.uid || 'anonymous';
 
   const allPlaces = this.routes
     .map((day: any) => day.route)
@@ -209,7 +209,8 @@ async goToHome() {
         endTime: p.endTime        // <- ekle
       }))
     })),
-    userId: userId // ✅ gerçek UID burada
+    userId: userId,
+    isShared: false
   };
 
   console.log('📦 Backend\'e gönderilen rota:', routePayload);
