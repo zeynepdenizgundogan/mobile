@@ -32,7 +32,7 @@
         <ion-col size="6" *ngFor="let route of filteredRoutes">
           <ion-card class="itinerary-card" (click)="goToRouteDetail(route)">
             <div class="card-image-container">
-              <img [src]="route.image_url || 'assets/images/placeholder.jpg'" (click)="goToRouteDetail(route)" />
+              <img class="card-image" [src]="route.image_url || 'assets/images/placeholder.jpg'" (click)="goToRouteDetail(route)" />
             </div>
             <ion-card-content>
               <h3>{{ route.title || 'Unnamed Trip' }}</h3>
@@ -41,6 +41,10 @@
                   <ion-icon name="location-outline"></ion-icon>
                   <span>{{ route.city || 'Unknown' }}</span>
                 </div>
+            <div class="row-info">
+              <ion-icon name="calendar-outline"></ion-icon>
+              <span>{{ route.durationInDays }} days</span>
+            </div>
               </div>
             </ion-card-content>
           </ion-card>

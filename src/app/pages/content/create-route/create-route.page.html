@@ -159,6 +159,16 @@
   <!-- Step 4: Place Selection -->
   <div *ngIf="currentStep === 4" class="step-container">
     <h2 class="text-center">Choose Places</h2>
+
+    <div class="search-bar">
+  <ion-icon name="search-outline"></ion-icon>
+  <input
+    type="text"
+    placeholder="Search by place name"
+    [(ngModel)]="searchTerm"
+    (ngModelChange)="filterPlaces()"
+  />
+</div>
     
     <div *ngIf="isLoading" class="loading-container">
       <ion-spinner></ion-spinner>
@@ -166,13 +176,13 @@
     </div>
     
     <div *ngIf="!isLoading" class="places-container">
-      <ion-card *ngFor="let place of places" 
+      <ion-card *ngFor="let place of filteredPlaces"
                 [ngClass]="{'selected': isPlaceSelected(place)}"
                 (click)="togglePlace(place)">
         <img [src]="place.image_url || place.image || 'assets/images/placeholder.jpg'" style="width: 100%; height: 200px; object-fit: cover;" />
         <ion-card-content>
           <h3>{{ place.name }}</h3>
-          <p>{{ place.location || 'No location info' }}</p>
+          <p>{{ place.category || 'No location info' }}</p>
           <p *ngIf="place.openingHours">Hours: {{ place.openingHours }}</p>
         </ion-card-content>
       </ion-card>
@@ -188,7 +198,7 @@
     <ion-button expand="block"
                 (click)="onSubmit()"
                 class="submit-button"
-                [disabled]="routeData.places.length === 0">
+                >
       Create Route
     </ion-button>
   </div>

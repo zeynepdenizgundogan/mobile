@@ -25,10 +25,10 @@ export class CreateRoutePage implements OnInit, OnDestroy {
   daysWithClouds: number[] = [2, 7, 8, 15, 21, 22, 23, 26, 27];
   routeData: Route = new Route();
   categories = [
-    { id: 'cultural', name: 'Cultural', icon: 'museum' },
+    { id: 'cultural', name: 'Cultural', icon: 'business' },
     { id: 'park', name: 'Park', icon: 'leaf' },
     { id: 'food', name: 'Food', icon: 'restaurant' },
-    { id: 'education', name: 'Education', icon: 'education' },
+    { id: 'education', name: 'Education', icon: 'school' },
     { id: 'shopping', name: 'Shopping', icon: 'cart' },
     { id: 'entertainment', name: 'Entertainment', icon: 'film' },
     { id: 'scenic', name: 'Scenic', icon: 'image' }
@@ -52,9 +52,11 @@ export class CreateRoutePage implements OnInit, OnDestroy {
       name: 'Taksim, Istanbul'
     };
   }
-
+searchTerm: string = '';
+filteredPlaces: Place[] = [];
   ngOnInit() {
     this.generateCalendarDays();
+    this.filteredPlaces = this.places;
   }
 
 
@@ -391,6 +393,7 @@ nextStep() {
       next: (res) => {
         console.log("📦 Gelen veriler:", res.data);
         this.places = res.data;
+        this.filteredPlaces = [...this.places];
         this.isLoading = false;
       },
       error: (err) => {
@@ -413,6 +416,17 @@ nextStep() {
     }
   }
 
+  
+ngOnChanges() {
+  this.filterPlaces();
+}
+
+filterPlaces() {
+  const term = this.searchTerm.toLowerCase();
+  this.filteredPlaces = this.places.filter(place =>
+    place.name.toLowerCase().includes(term)
+  );
+}
   // Check if a place is selected
   isPlaceSelected(place: Place): boolean {
     return this.routeData.places.some(p => p.id === place.id);
@@ -519,9 +533,9 @@ nextStep() {
     }
     
     if (this.routeData.places.length === 0) {
-      this.showToast('Please select at least one place to visit');
-      return false;
-    }
+  this.showToast('No places selected. The route will be generated based on your preferences.');
+  // return false; // ❌ bunu yazma
+}
     
     return true;
   }

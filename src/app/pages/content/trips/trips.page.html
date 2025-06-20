@@ -26,6 +26,12 @@
               <ion-icon name="location-outline"></ion-icon>
               <span>{{ trip.city}}</span>
             </div>
+            <div class="info-row">
+            <ion-icon name="calendar-outline"></ion-icon>
+            <span>
+              {{ trip.startDate | date: 'MMM d, y' }} – {{ trip.endDate | date: 'MMM d, y' }}
+            </span>
+          </div>
             <div class="action-buttons">
               <ion-button 
                 fill="clear" 
@@ -56,6 +62,12 @@
             <div class="info-row">
               <ion-icon name="location-outline"></ion-icon>
               <span>{{ trip.city }}</span>
+            </div>
+            <div class="info-row">
+              <ion-icon name="calendar-outline"></ion-icon>
+              <span>
+                {{ trip.startDate | date: 'MMM d, y' }} – {{ trip.endDate | date: 'MMM d, y' }}
+              </span>
             </div>
             <div class="action-buttons">
               <ion-button 

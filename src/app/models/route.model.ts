@@ -11,6 +11,7 @@ export class Route {
   startPlace: Place | null;
   duration: number; // in days
   startDate: Date | null;
+  durationInDays?: number; // Optional, can be calculated
   endDate: Date | null;
   places: Place[];
   userId?: number; // Reference to the user who created this route
@@ -31,6 +32,7 @@ export class Route {
     this.city = data.city || 'istanbul'; // Default city
     this.isShared = data.isShared || false; // Default to not shared
     this.title = data.title || undefined; // Optional title
+    this.durationInDays = data.durationInDays || undefined;
   }
   
   createRoute(): void {

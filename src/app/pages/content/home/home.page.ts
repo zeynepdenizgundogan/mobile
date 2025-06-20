@@ -53,7 +53,18 @@ export class HomePage {
 loadSharedRoutes() {
   this.http.get<any>('http://localhost:5001/api/routes?isShared=true').subscribe({
     next: (res) => {
-      this.sharedRoutes = res.routes;
+      this.sharedRoutes = res.routes.map((route: any) => {
+        const start = new Date(route.startDate);
+        const end = new Date(route.endDate);
+        const diffTime = Math.abs(end.getTime() - start.getTime());
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
+        return {
+          ...route,
+          durationInDays: diffDays
+        };
+      });
+
       console.log('✅ Paylaşılan rotalar:', this.sharedRoutes);
     },
     error: (err) => {
