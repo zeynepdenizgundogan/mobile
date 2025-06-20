@@ -1,13 +1,69 @@
-<ion-header [translucent]="true">
+<ion-header class="custom-header">
   <ion-toolbar>
-    <ion-title>calendar</ion-title>
+    <ion-title class="title-container">Calendar</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">calendar</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content class="calendar-content">
+  <ion-card>
+    <ion-card-header>
+      <ion-card-subtitle>
+        <ion-chip color="medium">
+          <ion-label>Past: {{ pastRoutes.length }}</ion-label>
+        </ion-chip>
+        <ion-chip color="success">
+          <ion-label>Today</ion-label>
+        </ion-chip>
+        <ion-chip color="primary">
+          <ion-label>Upcoming: {{ upcomingRoutes.length }}</ion-label>
+        </ion-chip>
+      </ion-card-subtitle>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-datetime
+        presentation="date"
+        first-day-of-week="1"
+        [highlightedDates]="highlightedDates"
+        [value]="selectedDate"
+        (ionChange)="onDateChange($event)">
+      </ion-datetime>
+    </ion-card-content>
+  </ion-card>
+
+  <div *ngIf="selectedRoutes.length > 0" class="route-info">
+    <h3>Trips on {{ selectedDate | date: 'MMMM d, yyyy' }}:</h3>
+    <ion-list>
+      <ion-item *ngFor="let route of selectedRoutes" [detail]="true">
+        <ion-thumbnail slot="start" *ngIf="route.image_url">
+          <img [src]="route.image_url" [alt]="route.title">
+        </ion-thumbnail>
+        <ion-label>
+          <h2>{{ route.title }}</h2>
+          <p>{{ route.city }}</p>
+          <p>
+            <ion-text [color]="getRouteStatus(route) === 'past' ? 'medium' : 
+                             getRouteStatus(route) === 'ongoing' ? 'success' : 'primary'">
+              <small>
+                {{ route.startDate | date: 'MMM d' }} - {{ route.endDate | date: 'MMM d, yyyy' }}
+                ({{ route.duration }} days)
+              </small>
+            </ion-text>
+          </p>
+        </ion-label>
+        <ion-badge slot="end" [color]="getRouteStatus(route) === 'past' ? 'medium' : 
+                                       getRouteStatus(route) === 'ongoing' ? 'success' : 'primary'">
+          {{ getRouteStatus(route) }}
+        </ion-badge>
+      </ion-item>
+    </ion-list>
+  </div>
+
+  <div *ngIf="selectedRoutes.length === 0 && allRoutes.length > 0" class="no-routes">
+    <ion-card>
+      <ion-card-content>
+        <ion-icon name="calendar-outline" size="large" color="medium"></ion-icon>
+        <p>No trips scheduled for this date</p>
+      </ion-card-content>
+    </ion-card>
+  </div>
 </ion-content>

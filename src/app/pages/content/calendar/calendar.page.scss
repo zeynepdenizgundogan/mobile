@@ -1,0 +1,127 @@
+.custom-header {
+  ion-toolbar {
+    --background: var(--ion-color-primary);
+    --color: white;
+  }
+}
+
+.title-container {
+  text-align: center;
+  font-weight: 600;
+  font-size: 1.2rem;
+}
+
+.calendar-content {
+  --background: #f4f5f8;
+
+  ion-card {
+    margin: 16px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+    ion-card-header {
+      padding-bottom: 0;
+
+      ion-card-subtitle {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        margin-bottom: 8px;
+
+        ion-chip {
+          font-size: 0.75rem;
+        }
+      }
+    }
+
+    ion-card-content {
+      padding-top: 8px;
+    }
+  }
+
+  ion-datetime {
+    --background: white;
+    border-radius: 8px;
+    
+    // Takvim boyutunu ayarla
+    max-width: 100%;
+    margin: 0 auto;
+  }
+
+  .route-info {
+    padding: 0 16px;
+
+    h3 {
+      color: var(--ion-color-dark);
+      font-size: 1.1rem;
+      margin: 16px 0 12px 0;
+    }
+
+    ion-list {
+      background: transparent;
+      
+      ion-item {
+        --background: white;
+        margin-bottom: 8px;
+        border-radius: 8px;
+        --inner-padding-end: 8px;
+
+        ion-thumbnail {
+          --size: 56px;
+          --border-radius: 8px;
+          margin-right: 12px;
+
+          img {
+            border-radius: 8px;
+            object-fit: cover;
+          }
+        }
+
+        ion-label {
+          h2 {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 4px;
+          }
+
+          p {
+            font-size: 0.875rem;
+            margin: 2px 0;
+          }
+        }
+
+        ion-badge {
+          font-size: 0.7rem;
+          padding: 4px 8px;
+          text-transform: uppercase;
+          font-weight: 600;
+        }
+      }
+    }
+  }
+
+  .no-routes {
+    ion-card {
+      text-align: center;
+      margin: 32px 16px;
+
+      ion-card-content {
+        padding: 32px;
+
+        ion-icon {
+          margin-bottom: 16px;
+        }
+
+        p {
+          color: var(--ion-color-medium);
+          font-size: 1rem;
+          margin: 0;
+        }
+      }
+    }
+  }
+}
+
+// Takvim özelleştirmeleri
+// Highlighted dates stilleri ion-datetime içinde otomatik uygulanır
+// highlightedDates array'indeki backgroundColor ve textColor değerleri kullanılır
