@@ -70,5 +70,12 @@ loadSharedRoutes() {
     state: { routeData: route }
   });
 }
+searchTerm: string = '';
 
+get filteredRoutes() {
+  if (!this.searchTerm.trim()) return this.sharedRoutes;
+  return this.sharedRoutes.filter(route =>
+    route.title?.toLowerCase().includes(this.searchTerm.toLowerCase())
+  );
+}
 }

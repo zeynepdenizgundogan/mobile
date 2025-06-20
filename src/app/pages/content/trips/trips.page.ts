@@ -94,4 +94,16 @@ async toggleShare(trip: any, event: Event) {
   }
 }
 
+get filteredUpcomingTrips() {
+  return this.upcomingTrips.filter(trip =>
+    trip.title?.toLowerCase().includes(this.searchTerm.toLowerCase())
+  );
+}
+
+get filteredPastTrips() {
+  return this.pastTrips.filter(trip =>
+    trip.title?.toLowerCase().includes(this.searchTerm.toLowerCase())
+  );
+}
+
 }

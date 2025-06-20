@@ -22,14 +22,14 @@
     <div class="search-wrapper">
       <div class="search-container">
         <ion-icon name="search-outline" class="search-icon"></ion-icon>
-        <input type="text" placeholder="Search" class="search-input">
+        <input type="text" placeholder="Search" class="search-input" [(ngModel)]="searchTerm">
       </div>
     </div>
 
     <!-- Itineraries Grid -->
     <ion-grid>
       <ion-row>
-        <ion-col size="6" *ngFor="let route of sharedRoutes">
+        <ion-col size="6" *ngFor="let route of filteredRoutes">
           <ion-card class="itinerary-card" (click)="goToRouteDetail(route)">
             <div class="card-image-container">
               <img [src]="route.image_url || 'assets/images/placeholder.jpg'" (click)="goToRouteDetail(route)" />
