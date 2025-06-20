@@ -21,8 +21,8 @@
   <div *ngIf="routes.length > 0 && routes[selectedDayIndex] as day" class="day-section">
     <div class="route-card" *ngFor="let place of day.route; let i = index">
       <div class="time-column">
-        <span class="start-time">{{ place.visitStartTime }}</span>
-        <span class="end-time">{{ place.visitEndTime }}</span>
+        <span class="start-time">{{ place.startTime }}</span>
+        <span class="end-time">{{ place.endTime }}</span>
       </div>
 
       <div class="card-content" [ngClass]="i % 2 === 0 ? 'card-blue' : 'card-white'">

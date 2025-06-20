@@ -11,6 +11,9 @@ export class Place {
   category?: string;
   description?: string;
   createdAt?: Date;
+  startTime?: string;
+  endTime?: string;
+
   
   constructor(data: Partial<Place> = {}) {
     this.id = data.id;
@@ -24,7 +27,10 @@ export class Place {
     this.category = data.category;
     this.description = data.description;
     this.createdAt = data.createdAt;
+    this.startTime = data.startTime;
+    this.endTime = data.endTime;
     console.log('🖼️ Place created:', { name: this.name, image: this.image, image_url: this.image_url });
+    
   }
   
   getScore(): number {

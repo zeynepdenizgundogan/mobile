@@ -25,6 +25,8 @@ ngOnInit() {
   } else if (state?.routeData?.places?.length) {
     this.routes = [{ day: 1, route: state.routeData.places }];
   }
+  console.log('📦 Gelen routeData:', history.state.routeData);
+console.log('⏱ İlk gün ilk yer:', history.state.routeData?.days?.[0]?.route?.[0]);
 }
 
   onSegmentChange(event: any) {

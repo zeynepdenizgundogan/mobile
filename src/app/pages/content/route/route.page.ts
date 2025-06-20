@@ -56,10 +56,11 @@ if (state?.startLocation) {
   console.log('Navigation state:', nav?.extras?.state); // Debug log
   if (nav?.extras?.state?.['routes']) {
     this.routes = nav.extras.state['routes'];
+    
   } else {
     console.warn('No routes data found in navigation state');
   }
-
+  this.injectVisitTimes();
   this.loadGoogleMapsScript().then(() => {
     this.loadMap();
   }).catch(err => {
@@ -89,6 +90,27 @@ if (state?.startLocation) {
 
     this.updateMarkers();
   }
+
+  injectVisitTimes() {
+  const defaultStartTime = 9 * 60; // 09:00 → dakikaya çevir
+
+  this.routes.forEach((day, dayIndex) => {
+    let currentTime = defaultStartTime;
+
+    day.route.forEach((place: any) => {
+      const visitDuration = place.visit_duration || 60; // Dakika cinsinden
+      const startHour = Math.floor(currentTime / 60);
+      const startMin = currentTime % 60;
+      const endHour = Math.floor((currentTime + visitDuration) / 60);
+      const endMin = (currentTime + visitDuration) % 60;
+
+      place.startTime = `${startHour.toString().padStart(2, '0')}:${startMin.toString().padStart(2, '0')}`;
+      place.endTime = `${endHour.toString().padStart(2, '0')}:${endMin.toString().padStart(2, '0')}`;
+
+      currentTime += visitDuration;
+    });
+  });
+}
 
   loadGoogleMapsScript(): Promise<void> {
     return new Promise((resolve, reject) => {
