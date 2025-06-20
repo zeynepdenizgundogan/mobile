@@ -479,7 +479,8 @@ nextStep() {
           startLocation: {
             lat: this.routeData.startLocation?.lat || 41.0370,
             lon: this.routeData.startLocation?.lon || 28.9850
-          }
+          },
+          city: this.routeData.city || 'unknown'
         }
       });
 

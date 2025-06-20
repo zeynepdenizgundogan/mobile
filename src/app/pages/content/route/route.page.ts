@@ -228,6 +228,7 @@ async goToHome() {
               thumbnailImageUrl,
               startPlace: allPlaces[0],
               duration: this.routes.length,
+              city: history.state?.city || 'unknown', 
               startDate: history.state?.startDate,
               endDate: history.state?.endDate,
               days: this.routes.map((day: any, index: number) => ({

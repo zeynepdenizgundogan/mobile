@@ -15,7 +15,7 @@ export class Route {
   places: Place[];
   userId?: number; // Reference to the user who created this route
   startLocation?: StartLocation; // Optional start location for the route,
-  city?: string; // Optional city for the route,
+  city?: string;
   isShared?: boolean; 
   title?: string; // Optional title for the route
   

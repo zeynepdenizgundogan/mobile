@@ -24,7 +24,7 @@
             <h3>{{ trip.title }}</h3>
             <div class="info-row">
               <ion-icon name="location-outline"></ion-icon>
-              <span>{{ trip.title}}</span>
+              <span>{{ trip.city}}</span>
             </div>
             <div class="action-buttons">
               <ion-button 
@@ -42,18 +42,20 @@
     </ion-row>
   </ion-grid>
 
+
+
   <!-- Past -->
   <div class="section-title">Your Past Trips</div>
   <ion-grid>
     <ion-row>
       <ion-col size="6" *ngFor="let trip of pastTrips">
-        <ion-card class="itinerary-card">
-          <img [src]="trip.image_url || 'assets/images/placeholder.jpg'" (click)="goToRouteDetail(trip)" />
+        <ion-card class="itinerary-card" (click)="goToRouteDetail(trip)">
+          <img [src]="trip.image_url || 'assets/images/placeholder.jpg'" />
           <ion-card-content>
             <h3>{{ trip.title }}</h3>
             <div class="info-row">
               <ion-icon name="location-outline"></ion-icon>
-              <span>{{ trip.startPlace?.name }}</span>
+              <span>{{ trip.city }}</span>
             </div>
             <div class="action-buttons">
               <ion-button 
