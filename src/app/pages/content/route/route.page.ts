@@ -196,16 +196,20 @@ const startMarker = new google.maps.Marker({
     }
   }
 
-  goBack() {
-    this.router.navigateByUrl('/content/create-route', {
-      state: {
-        routes: this.routes,
-        selectedCategories: this.selectedCategories,
-        mustVisitList: this.mustVisitList,
-        startLocation: this.startLocation
-      }
-    });
-  }
+goBack() {
+  this.router.navigateByUrl('/content/create-route', {
+    state: {
+      routes: this.routes,
+      selectedCategories: this.selectedCategories,
+      mustVisitList: this.mustVisitList,
+      startLocation: this.startLocation,
+      city: history.state?.city,
+      startDate: history.state?.startDate,
+      endDate: history.state?.endDate
+    }
+  });
+}
+
 
 async goToHome() {
   const auth = getAuth();

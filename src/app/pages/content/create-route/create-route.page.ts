@@ -54,10 +54,43 @@ export class CreateRoutePage implements OnInit, OnDestroy {
   }
 searchTerm: string = '';
 filteredPlaces: Place[] = [];
-  ngOnInit() {
-    this.generateCalendarDays();
-    this.filteredPlaces = this.places;
+ngOnInit() {
+  const nav = this.router.getCurrentNavigation();
+  const state = history.state;
+
+  if (state?.selectedCategories) {
+    this.selectedCategories = [...state.selectedCategories];
   }
+
+  if (state?.mustVisitList) {
+    this.routeData.places = [...state.mustVisitList];
+  }
+
+  if (state?.startLocation) {
+    this.routeData.startLocation = {
+      lat: state.startLocation.lat || state.startLocation.latitude,
+      lon: state.startLocation.lon || state.startLocation.longitude,
+      name: state.startLocation.name || 'Your Starting Point'
+    };
+  }
+
+  if (state?.city) {
+    this.routeData.city = state.city;
+  }
+
+  if (state?.startDate) {
+    this.routeData.startDate = new Date(state.startDate);
+  }
+
+  if (state?.endDate) {
+    this.routeData.endDate = new Date(state.endDate);
+    this.routeData.calculateDuration();
+  }
+
+  this.filteredPlaces = this.places; // Liste bozulmasın
+  this.generateCalendarDays();
+}
+
 
 
   ngOnDestroy() {
@@ -108,8 +141,13 @@ selectCity(cityName: string) {
   this.generateCalendarDays(); // takvimi sıfırla
 }
   ionViewWillEnter() {
+  const state = history.state;
+
+  if (!state?.selectedCategories && !state?.mustVisitList && !state?.startLocation) {
+    // Eğer dışarıdan veri gelmediyse sıfırla
     this.resetForm();
   }
+}
 
   
   initializeGoogleMap() {
