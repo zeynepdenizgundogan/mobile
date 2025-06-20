@@ -6,6 +6,7 @@ import { initializeApp } from "firebase/app";
 import { environment } from "src/environments/environment.prod";
 import { LocationService } from '../../../services/location.service';
 import { HttpClient } from '@angular/common/http';
+import { EventService } from '../../../services/event.service';
 
 @Component({
   selector: 'app-home',
@@ -27,7 +28,8 @@ export class HomePage {
     private alertController: AlertController,
     private navController: NavController,
     private locationService: LocationService,
-    private http: HttpClient
+    private http: HttpClient,
+    private eventService: EventService
   ) {}
 
   ngOnInit() {
@@ -42,6 +44,11 @@ export class HomePage {
     const auth = getAuth();
     this.user = auth.currentUser;
     this.loadSharedRoutes();
+      // 🔁 TripsPage'den paylaşım olduğunda tekrar yükle
+  this.eventService.refreshHomePage$.subscribe(() => {
+    console.log('🔄 Paylaşım yapıldı, rotalar tekrar yükleniyor...');
+    this.loadSharedRoutes();
+  });
   }
 loadSharedRoutes() {
   this.http.get<any>('http://localhost:5001/api/routes?isShared=true').subscribe({

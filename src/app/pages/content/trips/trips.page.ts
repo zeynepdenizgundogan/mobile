@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { getAuth } from 'firebase/auth';
 import { HttpClient } from '@angular/common/http';
 import { NavController, ToastController } from '@ionic/angular';
+import { EventService } from '../../../services/event.service';
 
 @Component({
   selector: 'app-trips',
@@ -17,13 +18,16 @@ export class TripsPage {
   constructor(
     private http: HttpClient, 
     private navController: NavController,
-    private toastController: ToastController
+    private toastController: ToastController,
+    private eventService: EventService
   ) {}
 
   ngOnInit() {
     this.user = getAuth().currentUser;
     this.loadTrips();
   }
+
+
 
   loadTrips() {
     const userId = this.user?.uid;
@@ -54,39 +58,40 @@ export class TripsPage {
     });
   }
 
-  async toggleShare(trip: any, event: Event) {
-    event.stopPropagation(); // Kart tıklamasını engelle
-    
-    const newShareStatus = !trip.isShared;
-    
-    try {
-      await this.http.patch(
-        `http://localhost:5001/api/routes/${trip._id}/share`,
-        { isShared: newShareStatus }
-      ).toPromise();
+async toggleShare(trip: any, event: Event) {
+  event.stopPropagation(); // Kart tıklamasını engelle
 
-      // UI'ı güncelle
-      trip.isShared = newShareStatus;
+  const newShareStatus = !trip.isShared;
 
-      // Toast mesajı göster
-      const toast = await this.toastController.create({
-        message: newShareStatus ? 'Trip shared publicly!' : 'Trip made private',
-        duration: 2000,
-        position: 'bottom',
-        color: newShareStatus ? 'success' : 'medium'
-      });
-      await toast.present();
+  try {
+    await this.http.put(
+      `http://localhost:5001/api/routes/${trip._id}/share`,
+      { isShared: newShareStatus }
+    ).toPromise();
 
-    } catch (error) {
-      console.error('❌ Share toggle failed:', error);
-      
-      const toast = await this.toastController.create({
-        message: 'Failed to update sharing status',
-        duration: 2000,
-        position: 'bottom',
-        color: 'danger'
-      });
-      await toast.present();
-    }
+    // UI'ı güncelle
+    trip.isShared = newShareStatus;
+    this.eventService.triggerRefreshHome(); //HomePage güncellemesi için event tetikle
+    // Toast mesajı göster
+    const toast = await this.toastController.create({
+      message: newShareStatus ? 'Trip shared publicly!' : 'Trip made private',
+      duration: 2000,
+      position: 'bottom',
+      color: newShareStatus ? 'success' : 'medium'
+    });
+    await toast.present();
+
+  } catch (error) {
+    console.error('❌ Share toggle failed:', error);
+
+    const toast = await this.toastController.create({
+      message: 'Failed to update sharing status',
+      duration: 2000,
+      position: 'bottom',
+      color: 'danger'
+    });
+    await toast.present();
   }
+}
+
 }

@@ -17,6 +17,7 @@ export class Route {
   startLocation?: StartLocation; // Optional start location for the route,
   city?: string; // Optional city for the route,
   isShared?: boolean; 
+  title?: string; // Optional title for the route
   
   constructor(data: Partial<Route> = {}) {
     this.id = data.id;
@@ -29,6 +30,7 @@ export class Route {
     this.startLocation = data.startLocation || undefined; // Optional start location
     this.city = data.city || 'istanbul'; // Default city
     this.isShared = data.isShared || false; // Default to not shared
+    this.title = data.title || undefined; // Optional title
   }
   
   createRoute(): void {

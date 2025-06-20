@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { AlertController } from '@ionic/angular';
+
 
 declare var google: any;
 
@@ -14,33 +16,16 @@ export class RouteViewPage implements OnInit {
   markers: any[] = [];
   mapLoadError: boolean = false;
 
-  constructor() {}
+  constructor(private alertController: AlertController) {}
 
 ngOnInit() {
   const state = history.state;
-  console.log('📦 routeData:', state.routeData);
-
   if (state?.routeData?.days?.length) {
     this.routes = state.routeData.days;
   } else if (state?.routeData?.places?.length) {
-    // fallback: eski kayıtlar için gün oluşturalım
-    this.routes = [{
-      day: 1,
-      route: state.routeData.places
-    }];
-    console.warn('⚠️ days alanı yoktu, places ile fallback yapıldı');
-  } else {
-    console.warn('⛔ routeData boş veya geçersiz');
+    this.routes = [{ day: 1, route: state.routeData.places }];
   }
-
-  this.loadGoogleMapsScript()
-    .then(() => this.loadMap())
-    .catch((err) => {
-      console.error('❌ Google Maps yüklenemedi:', err);
-      this.mapLoadError = true;
-    });
 }
-
 
   onSegmentChange(event: any) {
     this.selectedDayIndex = parseInt(event.detail.value, 10);
@@ -83,6 +68,15 @@ ngOnInit() {
       document.body.appendChild(script);
     });
   }
+  ionViewDidEnter() {
+  // Bu lifecycle, DOM tamamen yüklendiğinde çalışır
+  this.loadGoogleMapsScript()
+    .then(() => this.loadMap())
+    .catch((err) => {
+      console.error('❌ Google Maps yüklenemedi:', err);
+      this.mapLoadError = true;
+    });
+}
 
   updateMarkers() {
     if (!this.map) return;
@@ -114,4 +108,5 @@ ngOnInit() {
       this.map.fitBounds(bounds);
     }
   }
+  
 }

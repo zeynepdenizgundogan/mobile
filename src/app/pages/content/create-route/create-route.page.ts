@@ -8,7 +8,7 @@ import { Place } from '../../../models/place.model';
 import { Preferences } from '../../../models/preferences.model';
 import { PreferencesService } from '../../../services/preferences.service';
 import { NgZone } from '@angular/core';
-
+import { AlertController } from '@ionic/angular';
 @Component({
   selector: 'app-create-route',
   templateUrl: './create-route.page.html',
@@ -43,7 +43,8 @@ export class CreateRoutePage implements OnInit, OnDestroy {
     private loadingController: LoadingController,
     private toastController: ToastController,
     private preferencesService: PreferencesService,
-    private ngZone: NgZone
+    private ngZone: NgZone,
+    private alertController: AlertController
   ) {
     this.routeData.startLocation = {
       lat:  41.0370, 
@@ -94,7 +95,21 @@ selectCity(cityName: string) {
       document.body.appendChild(script);
     });
   }
+  resetForm() {
+  this.currentStep = 0;
+  this.selectedCategories = [];
+  this.places = [];
+  this.isLoading = false;
 
+  this.routeData = new Route(); // tüm verileri temizler
+  this.currentMonth = new Date();
+  this.generateCalendarDays(); // takvimi sıfırla
+}
+  ionViewWillEnter() {
+    this.resetForm();
+  }
+
+  
   initializeGoogleMap() {
     const startLat = this.routeData.startLocation?.lat || 41.9028;
     const startLon = this.routeData.startLocation?.lon || 12.4964;
@@ -307,14 +322,15 @@ nextStep() {
         });
     }
 
-    if (this.currentStep === 4) {
+    if (this.currentStep === 4 && !this.isLoading) {
       this.loadFilteredPlaces();
     }
   }
 }
 
+
   previousStep() {
-    if (this.currentStep > 1) {
+    if (this.currentStep > 0) {
       this.currentStep--;
     } else {
       this.router.navigate(['/content/home']);
@@ -373,6 +389,7 @@ nextStep() {
 
     this.routeService.getFilteredPlaces(preference).subscribe({
       next: (res) => {
+        console.log("📦 Gelen veriler:", res.data);
         this.places = res.data;
         this.isLoading = false;
       },
@@ -381,7 +398,9 @@ nextStep() {
         console.error('❌ Error loading filtered places:', err);
         this.showToast('Failed to load filtered places.');
       }
+     
     });
+    
   }
 
   // Place selection
@@ -414,6 +433,7 @@ nextStep() {
       this.isLoading = false;
       return;
     }
+
 
     const loading = await this.loadingController.create({
       message: 'Creating your route...',
@@ -514,4 +534,7 @@ nextStep() {
     });
     await toast.present();
   }
+ 
+  
+  
 }

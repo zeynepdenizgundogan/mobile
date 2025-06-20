@@ -26,37 +26,13 @@
       </div>
     </div>
 
-  <!-- Explore Section -->
-  <div class="explore-section">
-    <h3>Explore Itineraries</h3>
-    <div class="category-scroll">
-      <ion-segment value="all" scrollable mode="md">
-        <ion-segment-button value="all" class="active">
-          <ion-label>All</ion-label>
-        </ion-segment-button>
-        <ion-segment-button value="popular">
-          <ion-label>Popular</ion-label>
-        </ion-segment-button>
-        <ion-segment-button value="recommended">
-          <ion-label>Recommended</ion-label>
-        </ion-segment-button>
-        <ion-segment-button value="most-viewed">
-          <ion-label>Most Viewed</ion-label>
-        </ion-segment-button>
-        <ion-segment-button value="most-visited">
-          <ion-label>Most Visited</ion-label>
-        </ion-segment-button>
-      </ion-segment>
-    </div>
-  </div>
-
     <!-- Itineraries Grid -->
     <ion-grid>
       <ion-row>
         <ion-col size="6" *ngFor="let route of sharedRoutes">
           <ion-card class="itinerary-card" (click)="goToRouteDetail(route)">
             <div class="card-image-container">
-              <img src="assets/images/placeholder.jpg" class="card-image" />
+              <img [src]="route.image_url || 'assets/images/placeholder.jpg'" (click)="goToRouteDetail(route)" />
             </div>
             <ion-card-content>
               <h3>{{ route.title || 'Unnamed Trip' }}</h3>

@@ -2,7 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { Route } from 'src/app/models/route.model';
-import { getAuth } from 'firebase/auth';
+import { AlertController } from '@ionic/angular';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
 
 
@@ -24,7 +25,7 @@ export class RoutePage implements OnInit {
   mustVisitList: any[] = [];
   startLocation: any = null;
 
-  constructor(private router: Router, private http: HttpClient) {}
+  constructor(private router: Router, private http: HttpClient, private alertController: AlertController) {}
 
 
   ngOnInit() {
@@ -185,46 +186,83 @@ const startMarker = new google.maps.Marker({
   }
 
 async goToHome() {
-  const user = getAuth().currentUser;
-  const userId = user?.uid || 'anonymous';
+  const auth = getAuth();
 
-  const allPlaces = this.routes
-    .map((day: any) => day.route)
-    .reduce((acc: any[], val: any[]) => acc.concat(val), []);
+  onAuthStateChanged(auth, async (user) => {
+    const alert = await this.alertController.create({
+      header: 'Save Route',
+      message: 'Please enter a title for your route:',
+      inputs: [
+        {
+          name: 'title',
+          type: 'text',
+          placeholder: 'e.g. Istanbul Trip'
+        }
+      ],
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel'
+        },
+        {
+          text: 'Save',
+          handler: async (data) => {
+            if (!data.title) {
+              window.alert('Title is required');
+              return;
+            }
 
-  const routePayload = {
-    startPlace: allPlaces[0],
-    duration: this.routes.length,
-    startDate: history.state?.startDate,
-    endDate: history.state?.endDate,
-    days: this.routes.map((day: any, index: number) => ({
-      day: index + 1,
-      route: day.route.map((p: any) => ({
-        id: p.id,
-        name: p.name,
-        latitude: p.latitude,
-        longitude: p.longitude,
-        category: p.category,
-        startTime: p.startTime,   // <- ekle
-        endTime: p.endTime        // <- ekle
-      }))
-    })),
-    userId: userId,
-    isShared: false
-  };
+            const userId = user?.uid || 'anonymous';
+            const userName = user?.displayName || 'Unknown User';
 
-  console.log('📦 Backend\'e gönderilen rota:', routePayload);
+            const allPlaces = this.routes
+              .map((day: any) => day.route)
+              .reduce((acc: any[], val: any[]) => acc.concat(val), []);
 
-  try {
-    const result = await this.http.post('http://localhost:5001/api/routes', routePayload).toPromise();
-    console.log('✅ Rota başarıyla kaydedildi:', result);
-    await this.router.navigateByUrl('/content/home');
-  } catch (error: any) {
-    console.error('❌ Rota kaydedilemedi:', error?.message || error);
-    alert('Rota kaydedilemedi. Lütfen tekrar deneyin.');
-  }
+            const thumbnailImageUrl = allPlaces[0]?.image_url || '';
+
+            const routePayload = {
+              title: data.title,
+              userId,
+              userName,
+              thumbnailImageUrl,
+              startPlace: allPlaces[0],
+              duration: this.routes.length,
+              startDate: history.state?.startDate,
+              endDate: history.state?.endDate,
+              days: this.routes.map((day: any, index: number) => ({
+                day: index + 1,
+                route: day.route.map((p: any) => ({
+                  id: p.id,
+                  name: p.name,
+                  latitude: p.latitude,
+                  longitude: p.longitude,
+                  category: p.category,
+                  startTime: p.startTime,
+                  endTime: p.endTime
+                }))
+              })),
+              isShared: false
+            };
+
+            console.log('📦 Backend\'e gönderilen rota:', routePayload);
+
+            try {
+              const result = await this.http.post('http://localhost:5001/api/routes', routePayload).toPromise();
+              console.log('✅ Rota başarıyla kaydedildi:', result);
+              await this.router.navigateByUrl('/content/home');
+            } catch (error: any) {
+              console.error('❌ Rota kaydedilemedi:', error?.message || error);
+              window.alert('Rota kaydedilemedi. Lütfen tekrar deneyin.');
+            }
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+  });
 }
-
 
 
 
