@@ -28,17 +28,6 @@
 
     <!-- Menu List -->
     <ion-list lines="none">
-      <ion-item>
-        <ion-icon slot="start" name="time-outline"></ion-icon>
-        <ion-label>Previous Trips</ion-label>
-        <ion-icon slot="end" name="chevron-forward"></ion-icon>
-      </ion-item>
-
-      <ion-item>
-        <ion-icon slot="start" name="bookmark-outline"></ion-icon>
-        <ion-label>Bookmarked</ion-label>
-        <ion-icon slot="end" name="chevron-forward"></ion-icon>
-      </ion-item>
 
       <ion-item>
         <ion-icon slot="start" name="settings-outline"></ion-icon>
@@ -49,6 +38,7 @@
       <ion-item button (click)="goToPersonalInfo()">
         <ion-icon name="person-outline" slot="start"></ion-icon>
         <ion-label>Personal Information</ion-label>
+        <ion-icon slot="end" name="chevron-forward"></ion-icon>
       </ion-item>
 
       <ion-item (click)="logOut()">
