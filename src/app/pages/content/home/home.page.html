@@ -34,19 +34,25 @@
             <div class="card-image-container">
               <img class="card-image" [src]="route.image_url || 'assets/images/placeholder.jpg'" (click)="goToRouteDetail(route)" />
             </div>
-            <ion-card-content>
-              <h3>{{ route.title || 'Unnamed Trip' }}</h3>
-              <div class="card-footer">
-                <div class="location-info">
-                  <ion-icon name="location-outline"></ion-icon>
-                  <span>{{ route.city || 'Unknown' }}</span>
-                </div>
-            <div class="row-info">
-              <ion-icon name="calendar-outline"></ion-icon>
-              <span>{{ route.durationInDays }} days</span>
-            </div>
+         <ion-card-content>
+          <h3>{{ route.title || 'Unnamed Trip' }}</h3>
+          <div class="card-footer">
+            <div class="location-duration-row">
+              <div class="location-info">
+                <ion-icon name="location-outline"></ion-icon>
+                <span>{{ route.city || 'Unknown' }}</span>
               </div>
-            </ion-card-content>
+              <div class="duration-info">
+                <ion-icon name="calendar-outline"></ion-icon>
+                <span>{{ route.durationInDays }} days</span>
+              </div>
+            </div>
+            <div class="user-info">
+              <ion-icon name="person-outline"></ion-icon>
+              <span>{{ route.userName || 'Anonymous' }}</span>
+            </div>
+          </div>
+        </ion-card-content>
           </ion-card>
         </ion-col>
       </ion-row>

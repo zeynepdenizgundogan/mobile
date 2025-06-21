@@ -60,7 +60,7 @@ console.log('⏱ İlk gün ilk yer:', history.state.routeData?.days?.[0]?.route?
 
       const script = document.createElement('script');
       script.src =
-        'https://maps.googleapis.com/maps/api/js?key=AIzaSyCRheeW5QYpoaoK3WuSUQBZ4JqVEN1kGlk';
+        'https://maps.googleapis.com/maps/api/js?key=AIzaSyAXs1wCiXmeJgreCrQR50lHNlIeunUkQKw';
       script.async = true;
       script.defer = true;
 

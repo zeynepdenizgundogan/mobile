@@ -15,6 +15,7 @@ export class Route {
   endDate: Date | null;
   places: Place[];
   userId?: number; // Reference to the user who created this route
+  userName?: string; // Optional, can be used for display purposes
   startLocation?: StartLocation; // Optional start location for the route,
   city?: string;
   isShared?: boolean; 
@@ -33,6 +34,7 @@ export class Route {
     this.isShared = data.isShared || false; // Default to not shared
     this.title = data.title || undefined; // Optional title
     this.durationInDays = data.durationInDays || undefined;
+    this.userName = data.userName || undefined; // Optional user name
   }
   
   createRoute(): void {
