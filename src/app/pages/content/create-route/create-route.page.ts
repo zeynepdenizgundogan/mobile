@@ -9,6 +9,7 @@ import { Preferences } from '../../../models/preferences.model';
 import { PreferencesService } from '../../../services/preferences.service';
 import { NgZone } from '@angular/core';
 import { AlertController } from '@ionic/angular';
+
 @Component({
   selector: 'app-create-route',
   templateUrl: './create-route.page.html',
@@ -19,6 +20,9 @@ export class CreateRoutePage implements OnInit, OnDestroy {
   totalSteps = 4;
   private map: any;
   private marker: any;
+  private autocomplete: any;
+  private autocompleteService: any;
+  private placesService: any;
   currentMonth: Date = new Date();
   calendarDays: (Date | null)[] = [];
   weekdays: string[] = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
@@ -36,7 +40,7 @@ export class CreateRoutePage implements OnInit, OnDestroy {
   places: Place[] = [];
   isLoading = false;
 
-    constructor(
+  constructor(
     private router: Router,
     private routeService: RouteService,
     private loadingController: LoadingController,
@@ -51,68 +55,69 @@ export class CreateRoutePage implements OnInit, OnDestroy {
       name: 'Taksim, Istanbul'
     };
   }
-searchTerm: string = '';
-filteredPlaces: Place[] = [];
-ngOnInit() {
-  const nav = this.router.getCurrentNavigation();
-  const state = history.state;
 
-  if (state?.selectedCategories) {
-    this.selectedCategories = [...state.selectedCategories];
+  searchTerm: string = '';
+  filteredPlaces: Place[] = [];
+
+  ngOnInit() {
+    const nav = this.router.getCurrentNavigation();
+    const state = history.state;
+
+    if (state?.selectedCategories) {
+      this.selectedCategories = [...state.selectedCategories];
+    }
+
+    if (state?.mustVisitList) {
+      this.routeData.places = [...state.mustVisitList];
+    }
+
+    if (state?.startLocation) {
+      this.routeData.startLocation = {
+        lat: state.startLocation.lat || state.startLocation.latitude,
+        lon: state.startLocation.lon || state.startLocation.longitude,
+        name: state.startLocation.name || 'Your Starting Point'
+      };
+    }
+
+    if (state?.city) {
+      this.routeData.city = state.city;
+    }
+
+    if (state?.startDate) {
+      this.routeData.startDate = new Date(state.startDate);
+    }
+
+    if (state?.endDate) {
+      this.routeData.endDate = new Date(state.endDate);
+      this.routeData.calculateDuration();
+    }
+
+    this.filteredPlaces = this.places;
+    this.generateCalendarDays();
   }
-
-  if (state?.mustVisitList) {
-    this.routeData.places = [...state.mustVisitList];
-  }
-
-  if (state?.startLocation) {
-    this.routeData.startLocation = {
-      lat: state.startLocation.lat || state.startLocation.latitude,
-      lon: state.startLocation.lon || state.startLocation.longitude,
-      name: state.startLocation.name || 'Your Starting Point'
-    };
-  }
-
-  if (state?.city) {
-    this.routeData.city = state.city;
-  }
-
-  if (state?.startDate) {
-    this.routeData.startDate = new Date(state.startDate);
-  }
-
-  if (state?.endDate) {
-    this.routeData.endDate = new Date(state.endDate);
-    this.routeData.calculateDuration();
-  }
-
-  this.filteredPlaces = this.places; // Liste bozulmasın
-  this.generateCalendarDays();
-}
-
-
 
   ngOnDestroy() {
     this.map = null;
+    this.autocomplete = null;
   }
 
-selectCity(cityName: string) {
-  this.routeData.city = cityName;
+  selectCity(cityName: string) {
+    this.routeData.city = cityName;
 
-  if (cityName.toLowerCase() === 'istanbul') {
-    this.routeData.startLocation = {
-      lat: 41.0370,
-      lon: 28.9850,
-      name: 'Taksim, Istanbul'
-    };
-  } else if (cityName.toLowerCase() === 'rome') {
-    this.routeData.startLocation = {
-      lat: 41.9028,
-      lon: 12.4964,
-      name: 'Piazza Venezia, Rome'
-    };
+    if (cityName.toLowerCase() === 'istanbul') {
+      this.routeData.startLocation = {
+        lat: 41.0370,
+        lon: 28.9850,
+        name: 'Taksim, Istanbul'
+      };
+    } else if (cityName.toLowerCase() === 'rome') {
+      this.routeData.startLocation = {
+        lat: 41.9028,
+        lon: 12.4964,
+        name: 'Piazza Venezia, Rome'
+      };
+    }
   }
-}
 
   loadGoogleMapsScript(): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -121,7 +126,7 @@ selectCity(cityName: string) {
         return;
       }
       const script = document.createElement('script');
-      script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyCRheeW5QYpoaoK3WuSUQBZ4JqVEN1kGlk';
+      script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyCRheeW5QYpoaoK3WuSUQBZ4JqVEN1kGlk&libraries=places';
       script.async = true;
       script.defer = true;
       script.onload = () => resolve();
@@ -129,26 +134,26 @@ selectCity(cityName: string) {
       document.body.appendChild(script);
     });
   }
+
   resetForm() {
-  this.currentStep = 0;
-  this.selectedCategories = [];
-  this.places = [];
-  this.isLoading = false;
+    this.currentStep = 0;
+    this.selectedCategories = [];
+    this.places = [];
+    this.isLoading = false;
 
-  this.routeData = new Route(); // tüm verileri temizler
-  this.currentMonth = new Date();
-  this.generateCalendarDays(); // takvimi sıfırla
-}
-  ionViewWillEnter() {
-  const state = history.state;
-
-  if (!state?.selectedCategories && !state?.mustVisitList && !state?.startLocation) {
-    // Eğer dışarıdan veri gelmediyse sıfırla
-    this.resetForm();
+    this.routeData = new Route();
+    this.currentMonth = new Date();
+    this.generateCalendarDays();
   }
-}
 
-  
+  ionViewWillEnter() {
+    const state = history.state;
+
+    if (!state?.selectedCategories && !state?.mustVisitList && !state?.startLocation) {
+      this.resetForm();
+    }
+  }
+
   initializeGoogleMap() {
     const startLat = this.routeData.startLocation?.lat || 41.9028;
     const startLon = this.routeData.startLocation?.lon || 12.4964;
@@ -174,43 +179,97 @@ selectCity(cityName: string) {
       }
     });
 
+    // Initialize autocomplete
+    this.initializeLocationSearch();
+
     this.map.addListener('click', (event: any) => {
       this.updateStartLocation(event.latLng.lat(), event.latLng.lng());
     });
   }
 
-  updateStartLocation(lat: number, lng: number) {
-  this.routeData.startLocation = { lat, lon: lng };
+  initializeLocationSearch() {
+    const searchInput = document.getElementById('location-search-input') as HTMLInputElement;
+    if (!searchInput) return;
 
-  if (this.marker) this.marker.setMap(null);
-
-  this.marker = new google.maps.Marker({
-    position: { lat, lng },
-    map: this.map,
-    title: 'Selected Start Location',
-    icon: {
-      path: google.maps.SymbolPath.CIRCLE,
-      scale: 8,
-      fillColor: '#007bff',
-      fillOpacity: 1,
-      strokeWeight: 2,
-      strokeColor: 'white'
+    // Set bounds based on selected city
+    let bounds;
+    if (this.routeData.city?.toLowerCase() === 'istanbul') {
+      bounds = new google.maps.LatLngBounds(
+        new google.maps.LatLng(40.8, 28.6),
+        new google.maps.LatLng(41.3, 29.4)
+      );
+    } else if (this.routeData.city?.toLowerCase() === 'rome') {
+      bounds = new google.maps.LatLngBounds(
+        new google.maps.LatLng(41.7, 12.3),
+        new google.maps.LatLng(42.0, 12.7)
+      );
     }
-  });
 
-  this.map.setCenter({ lat, lng });
+    // Create autocomplete
+    this.autocomplete = new google.maps.places.Autocomplete(searchInput, {
+      bounds: bounds,
+      strictBounds: false,
+      types: ['establishment', 'geocode']
+    });
 
-  // 🧠 Eklenen reverse geocode işlemi
-this.reverseGeocode(lat, lng).then(name => {
-  this.ngZone.run(() => {
-    this.routeData.startLocation!.name = name;
-  });
-}).catch(() => {
-  this.ngZone.run(() => {
-    this.routeData.startLocation!.name = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
-  });
-});
-}
+    // Add place changed listener
+    this.autocomplete.addListener('place_changed', () => {
+      const place = this.autocomplete.getPlace();
+      
+      if (!place.geometry || !place.geometry.location) {
+        this.showToast('No location found for this place');
+        return;
+      }
+
+      const lat = place.geometry.location.lat();
+      const lng = place.geometry.location.lng();
+      
+      this.ngZone.run(() => {
+        this.updateStartLocation(lat, lng);
+        this.routeData.startLocation!.name = place.name || place.formatted_address || 'Selected Location';
+        
+        // Center map on selected location
+        this.map.setCenter(place.geometry.location);
+        this.map.setZoom(15);
+      });
+    });
+  }
+
+  updateStartLocation(lat: number, lng: number) {
+    this.routeData.startLocation = { lat, lon: lng };
+
+    if (this.marker) this.marker.setMap(null);
+
+    this.marker = new google.maps.Marker({
+      position: { lat, lng },
+      map: this.map,
+      title: 'Selected Start Location',
+      icon: {
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: 8,
+        fillColor: '#007bff',
+        fillOpacity: 1,
+        strokeWeight: 2,
+        strokeColor: 'white'
+      }
+    });
+
+    this.map.setCenter({ lat, lng });
+
+    // Reverse geocode if name not already set by autocomplete
+    if (!this.routeData.startLocation.name || this.routeData.startLocation.name === 'Selected Location') {
+      this.reverseGeocode(lat, lng).then(name => {
+        this.ngZone.run(() => {
+          this.routeData.startLocation!.name = name;
+        });
+      }).catch(() => {
+        this.ngZone.run(() => {
+          this.routeData.startLocation!.name = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+        });
+      });
+    }
+  }
+
   reverseGeocode(lat: number, lng: number): Promise<string> {
     return new Promise((resolve, reject) => {
       if (!(window as any).google || !(window as any).google.maps) {
@@ -227,7 +286,6 @@ this.reverseGeocode(lat, lng).then(name => {
       });
     });
   }
-
 
   getLocationName(): string {
     return this.routeData.startLocation?.name || 'Select a location';
@@ -346,27 +404,26 @@ this.reverseGeocode(lat, lng).then(name => {
   }
 
   // Navigation between steps
-nextStep() {
-  if (this.currentStep < this.totalSteps) {
-    this.currentStep++;
+  nextStep() {
+    if (this.currentStep < this.totalSteps) {
+      this.currentStep++;
 
-    // 🧠 Harita step 1'de yüklensin, script de dahil
-    if (this.currentStep === 1) {
-      this.loadGoogleMapsScript()
-        .then(() => {
-          setTimeout(() => this.initializeGoogleMap(), 300); // Harita container DOM'a gelsin
-        })
-        .catch((err) => {
-          console.error('❌ Google Maps yüklenemedi:', err);
-        });
-    }
+      // Load Google Maps with Places library for step 1
+      if (this.currentStep === 1) {
+        this.loadGoogleMapsScript()
+          .then(() => {
+            setTimeout(() => this.initializeGoogleMap(), 300);
+          })
+          .catch((err) => {
+            console.error('❌ Google Maps yüklenemedi:', err);
+          });
+      }
 
-    if (this.currentStep === 4 && !this.isLoading) {
-      this.loadFilteredPlaces();
+      if (this.currentStep === 4 && !this.isLoading) {
+        this.loadFilteredPlaces();
+      }
     }
   }
-}
-
 
   previousStep() {
     if (this.currentStep > 0) {
@@ -438,9 +495,7 @@ nextStep() {
         console.error('❌ Error loading filtered places:', err);
         this.showToast('Failed to load filtered places.');
       }
-     
     });
-    
   }
 
   // Place selection
@@ -453,17 +508,17 @@ nextStep() {
     }
   }
 
-  
-ngOnChanges() {
-  this.filterPlaces();
-}
+  ngOnChanges() {
+    this.filterPlaces();
+  }
 
-filterPlaces() {
-  const term = this.searchTerm.toLowerCase();
-  this.filteredPlaces = this.places.filter(place =>
-    place.name.toLowerCase().includes(term)
-  );
-}
+  filterPlaces() {
+    const term = this.searchTerm.toLowerCase();
+    this.filteredPlaces = this.places.filter(place =>
+      place.name.toLowerCase().includes(term)
+    );
+  }
+
   // Check if a place is selected
   isPlaceSelected(place: Place): boolean {
     return this.routeData.places.some(p => p.id === place.id);
@@ -484,7 +539,6 @@ filterPlaces() {
       this.isLoading = false;
       return;
     }
-
 
     const loading = await this.loadingController.create({
       message: 'Creating your route...',

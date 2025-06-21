@@ -37,13 +37,22 @@
   <div *ngIf="currentStep === 1" class="step-container">
     <h2 class="text-center">Choose Starting Point</h2>
     <p class="text-center subtitle">Select your starting location on the map</p>
-    <!-- Search bar for start location -->
-     
-
     
     <div class="map-container">
       <ion-card>
         <ion-card-content class="map-card-content">
+          <!-- Search bar overlay on map -->
+          <div class="map-search-container">
+            <div class="map-search-bar">
+              <ion-icon name="search-outline"></ion-icon>
+              <input
+                type="text"
+                id="location-search-input"
+                placeholder="Search for a location..."
+                class="location-search-input"
+              />
+            </div>
+          </div>
           <div id="map" class="map-display"></div>
         </ion-card-content>
       </ion-card>
