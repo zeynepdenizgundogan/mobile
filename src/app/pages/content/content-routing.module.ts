@@ -35,13 +35,20 @@ const routes: Routes = [
         path: 'route-view',
         loadChildren: () => import('./route-view/route-view.module').then( m => m.RouteViewPageModule)
       },
+        {
+        path: 'personal-info',
+        loadChildren: () => import('./personal-info/personal-info.module').then( m => m.PersonalInfoPageModule)
+      },  
+      
       {
         path: '',
         redirectTo: 'home',
         pathMatch: 'full'
       }
     ]
-  }
+  },
+
+
 ];
 
 

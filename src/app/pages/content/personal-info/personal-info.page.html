@@ -1,0 +1,35 @@
+<ion-header class="custom-header">
+  <ion-toolbar>
+    <ion-title class="title-container">Personal Information</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <!-- Kullanıcı henüz yüklenmediyse -->
+  <ion-text color="medium" *ngIf="!user">
+    <p>Loading user data...</p>
+  </ion-text>
+
+  <!-- Kullanıcı bilgisi yüklendiyse -->
+  <ion-card *ngIf="user">
+    <ion-card-header>
+      <ion-avatar *ngIf="user.photoURL">
+        <img [src]="user.photoURL" alt="Profile Photo" />
+      </ion-avatar>
+      <ion-card-title>{{ user.displayName || 'Name not set' }}</ion-card-title>
+      <ion-card-subtitle>{{ user.email }}</ion-card-subtitle>
+    </ion-card-header>
+
+    <ion-card-content>
+      <ion-item>
+        <ion-label><strong>City:</strong></ion-label>
+        <ion-text>{{ locationCity || 'Not set' }}</ion-text>
+      </ion-item>
+
+      <ion-item>
+        <ion-label><strong>Country:</strong></ion-label>
+        <ion-text>{{ locationCountry || 'Not set' }}</ion-text>
+      </ion-item>
+    </ion-card-content>
+  </ion-card>
+</ion-content>

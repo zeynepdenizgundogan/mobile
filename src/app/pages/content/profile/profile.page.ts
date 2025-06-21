@@ -132,7 +132,9 @@ async editProfilePicture() {
       this.presentAlert("Failed to log out.");
     }
   }
-
+  goToPersonalInfo() {
+  this.router.navigate(['/content/personal-info']);
+}
   // Sayfa yeniden görünür olduğunda profili güncelle
   ionViewWillEnter() {
     this.getUserProfile();
