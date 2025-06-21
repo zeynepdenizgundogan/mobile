@@ -4,7 +4,8 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="calendar-content">
+<ion-content class="calendar-content" [scrollEvents]="true">
+  <!-- Calendar Card -->
   <ion-card>
     <ion-card-header>
       <ion-card-subtitle>
@@ -30,39 +31,121 @@
     </ion-card-content>
   </ion-card>
 
+  <!-- Selected Date Routes -->
   <div *ngIf="selectedRoutes.length > 0" class="route-info">
-    <h3>Trips on {{ selectedDate | date: 'MMMM d, yyyy' }}:</h3>
-    <ion-list>
-      <ion-item *ngFor="let route of selectedRoutes" [detail]="true">
-        <ion-thumbnail slot="start" *ngIf="route.image_url">
-          <img [src]="route.image_url" [alt]="route.title">
-        </ion-thumbnail>
-        <ion-label>
-          <h2>{{ route.title }}</h2>
-          <p>{{ route.city }}</p>
-          <p>
-            <ion-text [color]="getRouteStatus(route) === 'past' ? 'medium' : 
-                             getRouteStatus(route) === 'ongoing' ? 'success' : 'primary'">
-              <small>
-                {{ route.startDate | date: 'MMM d' }} - {{ route.endDate | date: 'MMM d, yyyy' }}
-                ({{ route.duration }} days)
-              </small>
-            </ion-text>
-          </p>
-        </ion-label>
-        <ion-badge slot="end" [color]="getRouteStatus(route) === 'past' ? 'medium' : 
-                                       getRouteStatus(route) === 'ongoing' ? 'success' : 'primary'">
-          {{ getRouteStatus(route) }}
-        </ion-badge>
-      </ion-item>
-    </ion-list>
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="calendar-outline" slot="start"></ion-icon>
+          Trips on {{ selectedDate | date: 'MMMM d, yyyy' }}
+        </ion-card-title>
+        <ion-card-subtitle>{{ selectedRoutes.length }} trip(s) scheduled</ion-card-subtitle>
+      </ion-card-header>
+    </ion-card>
+
+    <!-- Route Cards -->
+    <ion-card 
+      *ngFor="let route of selectedRoutes" 
+      class="trip-card"
+      [class.past-trip]="getRouteStatus(route) === 'past'"
+      [class.ongoing-trip]="getRouteStatus(route) === 'ongoing'"
+      [class.upcoming-trip]="getRouteStatus(route) === 'upcoming'"
+      (click)="goToRouteDetail(route)">
+      
+      <ion-card-header>
+        <div class="card-header-content">
+          <div class="trip-info">
+            <ion-card-title>{{ route.title }}</ion-card-title>
+            <ion-card-subtitle>
+              <ion-icon name="location-outline" slot="start"></ion-icon>
+              {{ route.city }}
+            </ion-card-subtitle>
+          </div>
+          
+          <ion-badge 
+            [color]="getRouteStatus(route) === 'past' ? 'medium' : 
+                     getRouteStatus(route) === 'ongoing' ? 'success' : 'primary'"
+            class="status-badge">
+            {{ getRouteStatus(route) }}
+          </ion-badge>
+        </div>
+      </ion-card-header>
+
+      <ion-card-content>
+        <div class="trip-details">
+          <div class="date-info">
+            <ion-icon name="calendar-outline" color="primary"></ion-icon>
+            <span>{{ route.startDate | date: 'MMM d' }} - {{ route.endDate | date: 'MMM d, yyyy' }}</span>
+          </div>
+          
+          <div class="duration-info">
+            <ion-icon name="time-outline" color="primary"></ion-icon>
+            <span>{{ route.duration }} days</span>
+          </div>
+
+          <div class="share-info" *ngIf="route.isShared">
+            <ion-icon name="people-outline" color="success"></ion-icon>
+            <span>Shared publicly</span>
+          </div>
+        </div>
+
+        <!-- Trip Image -->
+        <div class="trip-image" *ngIf="route.image_url">
+          <img [src]="route.image_url" [alt]="route.title" />
+        </div>
+      </ion-card-content>
+
+      <!-- Action Buttons -->
+      <ion-card-content class="card-actions">
+        <ion-button 
+          fill="clear" 
+          size="small"
+          [color]="getRouteStatus(route) === 'past' ? 'medium' : 'primary'">
+          <ion-icon name="eye-outline" slot="start"></ion-icon>
+          View Details
+        </ion-button>
+        
+        <ion-button 
+          fill="clear" 
+          size="small" 
+          color="medium"
+          (click)="toggleShare(route, $event)">
+          <ion-icon 
+            [name]="route.isShared ? 'people' : 'people-outline'" 
+            slot="start">
+          </ion-icon>
+          {{ route.isShared ? 'Shared' : 'Share' }}
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
   </div>
 
+  <!-- No Routes Message -->
   <div *ngIf="selectedRoutes.length === 0 && allRoutes.length > 0" class="no-routes">
-    <ion-card>
-      <ion-card-content>
+    <ion-card class="empty-state-card">
+      <ion-card-content class="empty-state-content">
         <ion-icon name="calendar-outline" size="large" color="medium"></ion-icon>
-        <p>No trips scheduled for this date</p>
+        <h3>No trips scheduled</h3>
+        <p>No trips found for {{ selectedDate | date: 'MMMM d, yyyy' }}</p>
+        <ion-button fill="outline" color="primary" routerLink="/content/create-route">
+          <ion-icon name="add-outline" slot="start"></ion-icon>
+          Plan a Trip
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <!-- No Routes at All -->
+  <div *ngIf="allRoutes.length === 0" class="no-routes">
+    <ion-card class="empty-state-card">
+      <ion-card-content class="empty-state-content">
+        <ion-icon name="map-outline" size="large" color="medium"></ion-icon>
+        <h3>No trips yet</h3>
+        <p>Start planning your first adventure!</p>
+        <ion-button fill="solid" color="primary" routerLink="/content/create-route">
+          <ion-icon name="add-outline" slot="start"></ion-icon>
+          Create Your First Trip
+        </ion-button>
       </ion-card-content>
     </ion-card>
   </div>

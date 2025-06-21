@@ -1,127 +1,456 @@
+.calendar-content {
+  --background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: 16px;
+  height: auto;
+  overflow-y: auto;
+}
+
 .custom-header {
   ion-toolbar {
-    --background: var(--ion-color-primary);
+    --background: linear-gradient(135deg, #667eea 0%, #5b7fa6 100%);
     --color: white;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  }
+
+  .title-container {
+    font-weight: 700;
+    font-size: 1.3rem;
+    letter-spacing: 0.5px;
   }
 }
 
-.title-container {
-  text-align: center;
-  font-weight: 600;
-  font-size: 1.2rem;
+// Calendar Card Styling
+ion-card {
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+
+  ion-card-header {
+    background: linear-gradient(135deg, #f8f9ff 0%, #e8ecff 100%);
+    border-radius: 16px 16px 0 0;
+    
+    ion-card-subtitle {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+
+      ion-chip {
+        --border-radius: 25px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        
+        &[color="medium"] {
+          --background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+          --color: white;
+        }
+        
+        &[color="success"] {
+          --background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+          --color: white;
+        }
+        
+        &[color="primary"] {
+          --background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+          --color: white;
+        }
+      }
+    }
+  }
+
+  ion-card-content {
+    padding: 20px;
+  }
 }
 
-.calendar-content {
-  --background: #f4f5f8;
+// Route Info Section
+.route-info {
+  margin-top: 24px;
 
-  ion-card {
-    margin: 16px;
-    border-radius: 12px;
+  > ion-card {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+    color: #2c3e50;
+    border: 1px solid rgba(102, 126, 234, 0.2);
+    
+    ion-card-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #2c3e50 !important;
+      font-size: 1.2rem;
+      font-weight: 700;
+      
+      ion-icon {
+        font-size: 1.4rem;
+        color: #667eea !important;
+      }
+    }
+
+    ion-card-subtitle {
+      color: #7f8c8d !important;
+      font-weight: 500;
+      margin-top: 8px;
+    }
+  }
+}
+
+// Trip Cards
+.trip-card {
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  border-left: 4px solid transparent;
+  background: #ffffff;
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  
+  &:hover {
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.15);
+    background: #ffffff;
+  }
+
+  &.past-trip {
+    border-left-color: #95a5a6;
+    background: #ffffff;
+    
+    &:hover {
+      background: #ffffff;
+    }
+  }
+
+  &.ongoing-trip {
+    border-left-color: #2ecc71;
+    background: #ffffff;
+    box-shadow: 0 8px 32px rgba(46, 204, 113, 0.2);
+    
+    &:hover {
+      background: #ffffff;
+      box-shadow: 0 16px 40px rgba(46, 204, 113, 0.25);
+    }
+  }
+
+  &.upcoming-trip {
+    border-left-color: #3498db;
+    background: #ffffff;
+    box-shadow: 0 8px 32px rgba(52, 152, 219, 0.2);
+    
+    &:hover {
+      background: #ffffff;
+      box-shadow: 0 16px 40px rgba(52, 152, 219, 0.25);
+    }
+  }
+}
+
+// Card Header Content
+.card-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+
+  .trip-info {
+    flex: 1;
+
+    ion-card-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #2c3e50;
+      margin-bottom: 6px;
+      letter-spacing: 0.3px;
+    }
+
+    ion-card-subtitle {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.95rem;
+      color: #7f8c8d;
+      font-weight: 500;
+
+      ion-icon {
+        font-size: 1rem;
+        color: #3498db;
+      }
+    }
+  }
+
+  .status-badge {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    --border-radius: 15px;
+    padding: 6px 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+}
+
+// Trip Details
+.trip-details {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 16px;
+  background: rgba(248, 249, 250, 0.6);
+  border-radius: 12px;
+  border: 1px solid rgba(52, 152, 219, 0.1);
+
+  .date-info,
+  .duration-info,
+  .share-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.95rem;
+    color: #2c3e50;
+    font-weight: 500;
+
+    ion-icon {
+      font-size: 1.1rem;
+      padding: 6px;
+      border-radius: 8px;
+      background: rgba(52, 152, 219, 0.1);
+      color: #3498db;
+    }
+
+    span {
+      font-weight: 600;
+    }
+  }
+
+  .share-info {
+    color: #27ae60;
+    
+    ion-icon {
+      background: rgba(46, 204, 113, 0.1);
+      color: #27ae60;
+    }
+  }
+}
+
+// Trip Image
+.trip-image {
+  margin-top: 16px;
+  border-radius: 12px;
+  overflow: hidden;
+  max-height: 180px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.8);
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  }
+
+  &:hover img {
+    transform: scale(1.08);
+  }
+}
+
+// Card Actions
+.card-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, rgba(248, 249, 250, 0.8) 0%, rgba(236, 240, 241, 0.8) 100%);
+  border-top: 1px solid rgba(52, 152, 219, 0.1);
+  margin: 0 -20px -20px -20px;
+  border-radius: 0 0 16px 16px;
+
+  ion-button {
+    --padding-start: 12px;
+    --padding-end: 12px;
+    --border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: none;
+    letter-spacing: 0.3px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 
-    ion-card-header {
-      padding-bottom: 0;
-
-      ion-card-subtitle {
-        display: flex;
-        justify-content: center;
-        gap: 8px;
-        margin-bottom: 8px;
-
-        ion-chip {
-          font-size: 0.75rem;
-        }
-      }
-    }
-
-    ion-card-content {
-      padding-top: 8px;
-    }
-  }
-
-  ion-datetime {
-    --background: white;
-    border-radius: 8px;
-    
-    // Takvim boyutunu ayarla
-    max-width: 100%;
-    margin: 0 auto;
-  }
-
-  .route-info {
-    padding: 0 16px;
-
-    h3 {
-      color: var(--ion-color-dark);
+    ion-icon {
       font-size: 1.1rem;
-      margin: 16px 0 12px 0;
     }
 
-    ion-list {
-      background: transparent;
-      
-      ion-item {
-        --background: white;
-        margin-bottom: 8px;
-        border-radius: 8px;
-        --inner-padding-end: 8px;
-
-        ion-thumbnail {
-          --size: 56px;
-          --border-radius: 8px;
-          margin-right: 12px;
-
-          img {
-            border-radius: 8px;
-            object-fit: cover;
-          }
-        }
-
-        ion-label {
-          h2 {
-            font-weight: 600;
-            font-size: 1rem;
-            margin-bottom: 4px;
-          }
-
-          p {
-            font-size: 0.875rem;
-            margin: 2px 0;
-          }
-        }
-
-        ion-badge {
-          font-size: 0.7rem;
-          padding: 4px 8px;
-          text-transform: uppercase;
-          font-weight: 600;
-        }
-      }
+    &[color="primary"] {
+      --background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
     }
-  }
 
-  .no-routes {
-    ion-card {
-      text-align: center;
-      margin: 32px 16px;
-
-      ion-card-content {
-        padding: 32px;
-
-        ion-icon {
-          margin-bottom: 16px;
-        }
-
-        p {
-          color: var(--ion-color-medium);
-          font-size: 1rem;
-          margin: 0;
-        }
-      }
+    &[color="medium"] {
+      --background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
     }
   }
 }
 
-// Takvim özelleştirmeleri
-// Highlighted dates stilleri ion-datetime içinde otomatik uygulanır
-// highlightedDates array'indeki backgroundColor ve textColor değerleri kullanılır
+// Empty State
+.no-routes {
+  margin-top: 32px;
+}
+
+.empty-state-card {
+  text-align: center;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 249, 250, 0.9) 100%);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.empty-state-content {
+  padding: 40px 24px;
+
+  ion-icon {
+    margin-bottom: 20px;
+    opacity: 0.7;
+    color: #95a5a6;
+    background: rgba(149, 165, 166, 0.1);
+    padding: 20px;
+    border-radius: 50%;
+  }
+
+  h3 {
+    color: #2c3e50;
+    font-weight: 700;
+    margin-bottom: 12px;
+    font-size: 1.3rem;
+    letter-spacing: 0.3px;
+  }
+
+  p {
+    color: #7f8c8d;
+    margin-bottom: 24px;
+    font-size: 1rem;
+    line-height: 1.6;
+    font-weight: 500;
+  }
+
+  ion-button {
+    --border-radius: 25px;
+    --padding-start: 20px;
+    --padding-end: 20px;
+    --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    font-weight: 600;
+    text-transform: none;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .calendar-content {
+    padding: 12px;
+  }
+
+  .card-header-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .status-badge {
+    align-self: flex-end;
+  }
+
+  .card-actions {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+
+    ion-button {
+      width: 100%;
+      margin: 0;
+    }
+  }
+
+  .trip-details {
+    padding: 12px;
+    gap: 10px;
+  }
+}
+
+// DateTime Custom Styling
+ion-datetime {
+  --background: transparent;
+  --background-rgb: transparent;
+  
+  .calendar-day {
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+
+  .calendar-day.highlighted {
+    animation: pulse 2s infinite;
+  }
+}
+
+// Loading and Animation
+.trip-card {
+  animation: slideInUp 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(52, 152, 219, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(52, 152, 219, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(52, 152, 219, 0);
+  }
+}
+
+// Glassmorphism effects
+ion-card {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+// Smooth scrolling
+ion-content {
+  --offset-bottom: auto;
+  scroll-behavior: smooth;
+}
+
+// Remove custom scrollbar that might be causing issues
+ion-content {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(102, 126, 234, 0.3) transparent;
+}
+
+ion-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+ion-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+ion-content::-webkit-scrollbar-thumb {
+  background: rgba(102, 126, 234, 0.3);
+  border-radius: 3px;
+}
