@@ -4,7 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { Route } from 'src/app/models/route.model';
 import { AlertController } from '@ionic/angular';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-
+import { environment } from 'src/environments/environment';
 
 
 declare var google: any; // Google Maps global objesi
@@ -213,82 +213,87 @@ goBack() {
 
 async goToHome() {
   const auth = getAuth();
+  const user = auth.currentUser;
 
-  onAuthStateChanged(auth, async (user) => {
-    const alert = await this.alertController.create({
-      header: 'Save Route',
-      message: 'Please enter a title for your route:',
-      inputs: [
-        {
-          name: 'title',
-          type: 'text',
-          placeholder: 'e.g. Istanbul Trip'
-        }
-      ],
-      buttons: [
-        {
-          text: 'Cancel',
-          role: 'cancel'
-        },
-        {
-          text: 'Save',
-          handler: async (data) => {
-            if (!data.title) {
-              window.alert('Title is required');
-              return;
-            }
+  if (!user) {
+    // Kullanıcı giriş yapmamışsa login sayfasına yönlendir
+    this.router.navigateByUrl('/login');
+    return;
+  }
 
-            const userId = user?.uid || 'anonymous';
-            const userName = user?.displayName || 'Unknown User';
+  const alert = await this.alertController.create({
+    header: 'Save Route',
+    message: 'Please enter a title for your route:',
+    inputs: [
+      {
+        name: 'title',
+        type: 'text',
+        placeholder: 'e.g. Istanbul Trip'
+      }
+    ],
+    buttons: [
+      {
+        text: 'Cancel',
+        role: 'cancel'
+      },
+      {
+        text: 'Save',
+        handler: async (data) => {
+          if (!data.title) {
+            window.alert('Title is required');
+            return;
+          }
 
-            const allPlaces = this.routes
-              .map((day: any) => day.route)
-              .reduce((acc: any[], val: any[]) => acc.concat(val), []);
+          const userId = user.uid;
+          const userName = user.displayName || 'Unknown User';
 
-            const thumbnailImageUrl = allPlaces[0]?.image_url || '';
+          const allPlaces = this.routes
+            .map((day: any) => day.route)
+            .reduce((acc: any[], val: any[]) => acc.concat(val), []);
 
-            const routePayload = {
-              title: data.title,
-              userId,
-              userName,
-              thumbnailImageUrl,
-              startPlace: allPlaces[0],
-              duration: this.routes.length,
-              city: history.state?.city || 'unknown', 
-              startDate: history.state?.startDate,
-              endDate: history.state?.endDate,
-              days: this.routes.map((day: any, index: number) => ({
-                day: index + 1,
-                route: day.route.map((p: any) => ({
-                  id: p.id,
-                  name: p.name,
-                  latitude: p.latitude,
-                  longitude: p.longitude,
-                  category: p.category,
-                  startTime: p.startTime,
-                  endTime: p.endTime
-                }))
-              })),
-              isShared: false
-            };
+          const thumbnailImageUrl = allPlaces[0]?.image_url || '';
 
-            console.log('📦 Backend\'e gönderilen rota:', routePayload);
+          const routePayload = {
+            title: data.title,
+            userId,
+            userName,
+            thumbnailImageUrl,
+            startPlace: allPlaces[0],
+            duration: this.routes.length,
+            city: history.state?.city || 'unknown', 
+            startDate: history.state?.startDate,
+            endDate: history.state?.endDate,
+            days: this.routes.map((day: any, index: number) => ({
+              day: index + 1,
+              route: day.route.map((p: any) => ({
+                id: p.id,
+                name: p.name,
+                latitude: p.latitude,
+                longitude: p.longitude,
+                category: p.category,
+                startTime: p.startTime,
+                endTime: p.endTime
+              }))
+            })),
+            isShared: false
+          };
 
-            try {
-              const result = await this.http.post('http://localhost:5001/api/routes', routePayload).toPromise();
-              console.log('✅ Rota başarıyla kaydedildi:', result);
-              await this.router.navigateByUrl('/content/home');
-            } catch (error: any) {
-              console.error('❌ Rota kaydedilemedi:', error?.message || error);
-              window.alert('Rota kaydedilemedi. Lütfen tekrar deneyin.');
-            }
+          console.log('📦 Backend\'e gönderilen rota:', routePayload);
+
+          try {
+            const result = await this.http.post('http://localhost:5001/api/routes', routePayload).toPromise();
+            console.log('✅ Rota başarıyla kaydedildi:', result);
+            await this.router.navigateByUrl('/content/home');
+          } catch (error: any) {
+            console.error('❌ Rota kaydedilemedi:', error?.message || error);
+            window.alert('Rota kaydedilemedi. Lütfen tekrar deneyin.');
           }
         }
-      ]
-    });
-
-    await alert.present();
+      }
+    ]
   });
+
+  await alert.present();
 }
 
 
