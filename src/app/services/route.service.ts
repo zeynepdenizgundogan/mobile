@@ -4,12 +4,13 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Route } from '../models/route.model';
 import { Place } from '../models/place.model';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class RouteService {
-  private apiUrl = 'http://localhost:5001/api'; // Replace with your actual API URL
+  private apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
   // 🔍 Filtered places by complex preference (kategori, tarih, süre vs.)

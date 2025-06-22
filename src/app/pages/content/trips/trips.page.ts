@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
-import { getAuth } from 'firebase/auth';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { HttpClient } from '@angular/common/http';
 import { NavController, ToastController } from '@ionic/angular';
 import { EventService } from '../../../services/event.service';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-trips',
@@ -16,16 +17,31 @@ export class TripsPage {
   searchTerm: string = '';
 
   constructor(
-    private http: HttpClient, 
+    private http: HttpClient,
     private navController: NavController,
     private toastController: ToastController,
     private eventService: EventService
   ) {}
 
-  ngOnInit() {
-    this.user = getAuth().currentUser;
-    this.loadTrips();
+  ionViewWillEnter() {
+    const auth = getAuth();
+    const currentUser = auth.currentUser;
+
+    if (currentUser) {
+      this.user = currentUser;
+      this.loadTrips();
+    } else {
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          this.user = user;
+          this.loadTrips();
+        } else {
+          console.warn('❌ Kullanıcı oturumu yok.');
+        }
+      });
+    }
   }
+
 
 
 
@@ -37,7 +53,8 @@ export class TripsPage {
       return;
     }
 
-    this.http.get<any>(`http://localhost:5001/api/routes/${userId}`).subscribe({
+    this.http.get<any>(`${environment.apiUrl}/routes/${userId}?_=${Date.now()}`).subscribe({
+
       next: (res) => {
         const now = new Date();
         this.upcomingTrips = res.routes.filter((r: any) => new Date(r.startDate) >= now);
@@ -65,7 +82,7 @@ async toggleShare(trip: any, event: Event) {
 
   try {
     await this.http.put(
-      `http://localhost:5001/api/routes/${trip._id}/share`,
+      `${environment.apiUrl}/routes/${trip._id}/share`,
       { isShared: newShareStatus }
     ).toPromise();
 

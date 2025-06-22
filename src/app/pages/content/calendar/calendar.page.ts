@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { NavController, ToastController } from '@ionic/angular';
 import { EventService } from '../../../services/event.service'; // path'i projenize göre ayarlayın
-
+import { environment } from 'src/environments/environment';
 interface Route {
   _id: string;
   title: string;
@@ -61,7 +61,7 @@ export class CalendarPage implements OnInit {
   }
 
   loadUserRoutes(userId: string) {
-    this.http.get<any>(`http://localhost:5001/api/routes/${userId}`).subscribe(
+    this.http.get<any>(`${environment.apiUrl}/routes/${userId}`).subscribe(
       (res) => {
         this.allRoutes = res.routes || [];
         this.categorizeRoutes();
@@ -197,7 +197,7 @@ export class CalendarPage implements OnInit {
 
     try {
       await this.http.put(
-        `http://localhost:5001/api/routes/${trip._id}/share`,
+        `${environment.apiUrl}/routes/${trip._id}/share`,
         { isShared: newShareStatus }
       ).toPromise();
 

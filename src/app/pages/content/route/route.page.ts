@@ -281,7 +281,7 @@ async goToHome() {
           console.log('📦 Backend\'e gönderilen rota:', routePayload);
 
           try {
-            const result = await this.http.post('http://localhost:5001/api/routes', routePayload).toPromise();
+            const result = await this.http.post(`${environment.apiUrl}/routes`, routePayload).toPromise();
             console.log('✅ Rota başarıyla kaydedildi:', result);
             await this.router.navigateByUrl('/content/home');
           } catch (error: any) {

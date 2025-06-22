@@ -3,10 +3,10 @@ import { AlertController, NavController } from "@ionic/angular";
 import { getAuth, updateProfile } from "firebase/auth";
 import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
 import { initializeApp } from "firebase/app";
-import { environment } from "src/environments/environment.prod";
 import { LocationService } from '../../../services/location.service';
 import { HttpClient } from '@angular/common/http';
 import { EventService } from '../../../services/event.service';
+import { environment } from "src/environments/environment";
 
 @Component({
   selector: 'app-home',
@@ -51,7 +51,7 @@ export class HomePage {
   });
   }
 loadSharedRoutes() {
-  this.http.get<any>('http://localhost:5001/api/routes?isShared=true').subscribe({
+  this.http.get<any>(`${environment.apiUrl}/routes?isShared=true`).subscribe({
     next: (res) => {
       this.sharedRoutes = res.routes.map((route: any) => {
         const start = new Date(route.startDate);

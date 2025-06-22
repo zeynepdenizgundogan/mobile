@@ -9,4 +9,5 @@ export const environment = {
     appId: "1:961766547708:web:e145cb6d79b29949cf7779",
     measurementId: "G-GH5W43B36T"
   },
+  apiUrl: 'https://api-production-a8eb.up.railway.app/api'
 };

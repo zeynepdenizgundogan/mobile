@@ -2,17 +2,19 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Preferences } from '../models/preferences.model';
 import { Observable } from 'rxjs';
+import { environment } from 'src/environments/environment';
+
 
 @Injectable({
   providedIn: 'root'
 })
 export class PreferencesService {
 
-  private apiUrl = 'http://localhost:5001/api/preferences'; // Backend API adresin
+  private apiUrl = `${environment.apiUrl}/preferences`;
 
   constructor(private http: HttpClient) {}
   getOptimizedRoutes(preference: Preferences) {
-    return this.http.post<any>('http://localhost:5001/api/preferences', preference);
+    return this.http.post<any>(this.apiUrl, preference);
   }
   /**
    * Kullanıcı tercihlerini backend'e POST eder.
