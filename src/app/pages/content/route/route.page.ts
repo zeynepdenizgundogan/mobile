@@ -5,6 +5,7 @@ import { Route } from 'src/app/models/route.model';
 import { AlertController } from '@ionic/angular';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { environment } from 'src/environments/environment';
+import { ImageHelperService } from 'src/app/services/image-helper.service';
 
 
 declare var google: any; // Google Maps global objesi
@@ -25,7 +26,7 @@ export class RoutePage implements OnInit {
   mustVisitList: any[] = [];
   startLocation: any = null;
 
-  constructor(private router: Router, private http: HttpClient, private alertController: AlertController) {}
+  constructor(private router: Router, private http: HttpClient, private alertController: AlertController,private imageHelper: ImageHelperService) {}
 
 
   ngOnInit() {
@@ -251,7 +252,7 @@ async goToHome() {
             .map((day: any) => day.route)
             .reduce((acc: any[], val: any[]) => acc.concat(val), []);
 
-          const thumbnailImageUrl = allPlaces[0]?.image_url || '';
+          const thumbnailImageUrl = this.imageHelper.getProxiedImageUrl(allPlaces[0]?.image_url);
 
           const routePayload = {
             title: data.title,

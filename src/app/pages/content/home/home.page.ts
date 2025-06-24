@@ -7,6 +7,7 @@ import { LocationService } from '../../../services/location.service';
 import { HttpClient } from '@angular/common/http';
 import { EventService } from '../../../services/event.service';
 import { environment } from "src/environments/environment";
+import { ImageHelperService } from 'src/app/services/image-helper.service';
 
 @Component({
   selector: 'app-home',
@@ -29,7 +30,8 @@ export class HomePage {
     private navController: NavController,
     private locationService: LocationService,
     private http: HttpClient,
-    private eventService: EventService
+    private eventService: EventService,
+    private imageHelper: ImageHelperService
   ) {}
 
   ngOnInit() {
@@ -50,6 +52,11 @@ export class HomePage {
     this.loadSharedRoutes();
   });
   }
+
+  getImageUrl(url: string) {
+  return this.imageHelper.getProxiedImageUrl(url);
+}
+
 loadSharedRoutes() {
   this.http.get<any>(`${environment.apiUrl}/routes?isShared=true`).subscribe({
     next: (res) => {

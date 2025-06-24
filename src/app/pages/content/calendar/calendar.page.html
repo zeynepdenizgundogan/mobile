@@ -91,7 +91,7 @@
 
         <!-- Trip Image -->
         <div class="trip-image" *ngIf="route.image_url">
-          <img [src]="route.image_url" [alt]="route.title" />
+          <img [src]="getImageUrl(route.image_url)" [alt]="route.title" />
         </div>
       </ion-card-content>
 

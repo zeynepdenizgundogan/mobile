@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { NavController, ToastController } from '@ionic/angular';
 import { EventService } from '../../../services/event.service';
 import { environment } from 'src/environments/environment';
+import { ImageHelperService } from 'src/app/services/image-helper.service';
 
 @Component({
   selector: 'app-trips',
@@ -20,7 +21,8 @@ export class TripsPage {
     private http: HttpClient,
     private navController: NavController,
     private toastController: ToastController,
-    private eventService: EventService
+    private eventService: EventService,
+    private imageHelper: ImageHelperService
   ) {}
 
   ionViewWillEnter() {
@@ -42,7 +44,9 @@ export class TripsPage {
     }
   }
 
-
+getImageUrl(url: string) {
+  return this.imageHelper.getProxiedImageUrl(url);
+}
 
 
   loadTrips() {

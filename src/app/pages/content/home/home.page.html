@@ -32,7 +32,7 @@
         <ion-col size="6" *ngFor="let route of filteredRoutes">
           <ion-card class="itinerary-card" (click)="goToRouteDetail(route)">
             <div class="card-image-container">
-              <img class="card-image" [src]="route.image_url || 'assets/images/placeholder.jpg'" (click)="goToRouteDetail(route)" />
+              <img class="card-image" [src]="getImageUrl(route.image_url)" (click)="goToRouteDetail(route)" />
             </div>
          <ion-card-content>
           <h3>{{ route.title || 'Unnamed Trip' }}</h3>

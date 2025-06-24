@@ -9,6 +9,7 @@ import { Preferences } from '../../../models/preferences.model';
 import { PreferencesService } from '../../../services/preferences.service';
 import { NgZone } from '@angular/core';
 import { AlertController } from '@ionic/angular';
+import { ImageHelperService } from 'src/app/services/image-helper.service';
 
 @Component({
   selector: 'app-create-route',
@@ -47,7 +48,8 @@ export class CreateRoutePage implements OnInit, OnDestroy {
     private toastController: ToastController,
     private preferencesService: PreferencesService,
     private ngZone: NgZone,
-    private alertController: AlertController
+    private alertController: AlertController,
+    private imageHelper: ImageHelperService
   ) {
     this.routeData.startLocation = {
       lat:  41.0370, 
@@ -118,6 +120,11 @@ export class CreateRoutePage implements OnInit, OnDestroy {
       };
     }
   }
+
+  getImageUrl(url: string) {
+  return this.imageHelper.getProxiedImageUrl(url);
+}
+
 
   loadGoogleMapsScript(): Promise<void> {
     return new Promise((resolve, reject) => {
