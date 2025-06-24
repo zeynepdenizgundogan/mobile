@@ -4,6 +4,7 @@ import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { NavController, ToastController } from '@ionic/angular';
 import { EventService } from '../../../services/event.service'; // path'i projenize göre ayarlayın
 import { environment } from 'src/environments/environment';
+import { ImageHelperService } from 'src/app/services/image-helper.service';
 interface Route {
   _id: string;
   title: string;
@@ -38,7 +39,8 @@ export class CalendarPage implements OnInit {
     private http: HttpClient,
     private navController: NavController,
     private toastController: ToastController,
-    private eventService: EventService
+    private eventService: EventService,
+    private imageHelper: ImageHelperService
   ) {}
 
   ngOnInit() {
@@ -59,6 +61,10 @@ export class CalendarPage implements OnInit {
       this.loadUserRoutes(user.uid);
     }
   }
+
+  getImageUrl(url: string): string {
+  return this.imageHelper.getProxiedImageUrl(url);
+}
 
   loadUserRoutes(userId: string) {
     this.http.get<any>(`${environment.apiUrl}/routes/${userId}`).subscribe(
